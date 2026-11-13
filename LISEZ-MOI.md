@@ -26,7 +26,7 @@ Le firmware Wi‑Fi transmet les trames ZiGate sur TCP `9999` et utilise l’UAR
    python -m esptool --chip esp8266 --port PORT_WIFI --baud 115200 write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x0 firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.0.0.bin
    ```
 
-4. Débranche et rebranche la carte Wi‑Fi en mode normal. Ouvre son port USB dans un terminal série à **115200, 8N1, sans contrôle de flux**. La carte affiche le SSID `ZIGATE-…` et une clé WPA2 aléatoire toutes les cinq secondes tant que le mode de configuration est actif. Connecte-toi à ce Wi‑Fi et ouvre `http://192.168.4.1/`. Saisis ton réseau **2,4 GHz** et son mot de passe. Laisse les champs d’adresse vides pour le DHCP. Le pont devient disponible à l’adresse attribuée par ton routeur.
+4. Débranche et rebranche la carte Wi‑Fi en mode normal. Sur la [page de flash](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi), clique sur **Lire la clé Wi-Fi en USB**. Tu peux aussi lire le port USB dans un terminal série à **115200, 8N1, sans contrôle de flux**. La carte affiche le SSID `ZIGATE-…` et une clé WPA2 aléatoire toutes les cinq secondes tant que le mode de configuration est actif. Utilise cette clé pour rejoindre `ZIGATE-…`, puis ouvre `http://192.168.4.1/`. Saisis le réseau **2,4 GHz de ta box** et son mot de passe. Laisse les champs d’adresse vides pour le DHCP. Le pont devient disponible à l’adresse attribuée par ton routeur.
 
 Après une coupure Wi‑Fi prolongée, le point d’accès de configuration revient. L’interface sert à configurer le Wi‑Fi. Les mises à jour de cette version se font via USB.
 
@@ -50,6 +50,8 @@ Après une coupure Wi‑Fi prolongée, le point d’accès de configuration revi
 1. Ferme les autres onglets du flasheur et les logiciels qui peuvent utiliser le port, comme PuTTY ou FlashGUI.
 2. Ouvre le **Gestionnaire de périphériques → Ports (COM et LPT)**. Débranche puis rebranche l’adaptateur de la radio. Repère le port qui disparaît puis revient. Si son numéro change, sélectionne le nouveau port dans le flasheur.
 3. Ouvre **Propriétés → Général** pour lire le nom et l’état du périphérique.
+
+Les [pilotes USB pour Windows](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pilotes.html) sont regroupés par adaptateur.
 
 Si Windows affiche **« PL2303HXA PHASED OUT SINCE 2012 »**, le pilote Prolific refuse d’ouvrir le port. Tu peux connaître ta version de Windows avec **Win + R**, puis `winver`.
 

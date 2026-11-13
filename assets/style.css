@@ -129,6 +129,10 @@ progress { width: 100%; height: 10px; accent-color: #3e7650; }
 .reset-body p:first-child { margin-top: 10px; }
 .reset-body p { margin-bottom: 9px; }
 .reset-body .status { margin-bottom: 0; }
+.wifi-setup-button { display: flex; margin-top: 8px; }
+.step-wifi .short-steps .field-hint { font-size: 13px; margin: 6px 0 8px; }
+.step-wifi .short-steps .status { margin: 8px 0 0; }
+.driver-help { color: var(--muted); font-size: 14px; margin: 0; }
 .wifi-credentials { display: flex; flex-wrap: wrap; align-items: center; gap: 9px 22px; padding: 13px; background: var(--soft); margin-top: 12px; border-radius: 10px; }
 .wifi-credentials dl { display: flex; flex-wrap: wrap; gap: 9px 22px; margin: 0; }
 .wifi-credentials dt { font-size: 12px; color: var(--muted); }

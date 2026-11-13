@@ -24,11 +24,11 @@ Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d
 
 1. Ouvre [la page de flash](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/) et programme le module **Wi-Fi**.
 2. Programme la **radio Zigbee** avec l’adaptateur USB‑TTL.
-3. Remonte la ZiGate et connecte-la à ton **Wi-Fi 2,4 GHz**.
+3. Remonte la ZiGate et clique sur **Lire la clé Wi-Fi en USB**. Utilise cette clé pour te connecter au réseau **ZIGATE-…**, puis renseigne le Wi-Fi 2,4 GHz de ta box.
 4. Dans Home Assistant, installe **Mosquitto** et **Zigbee2MQTT**, puis renseigne l’adresse de la ZiGate.
 5. Appaire un appareil dans Zigbee2MQTT et retrouve-le sous **MQTT** dans Home Assistant.
 
-**Guides** · [Flash depuis le navigateur](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/) · [Home Assistant](#installation-dans-home-assistant) · [Flash manuel](LISEZ-MOI.md)
+**Guides** · [Flash depuis le navigateur](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/) · [Home Assistant](#installation-dans-home-assistant) · [Pilotes USB pour Windows](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pilotes.html) · [Flash manuel](LISEZ-MOI.md)
 
 ## Mettre à jour la ZiGate
 
@@ -40,7 +40,7 @@ Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d
 1. Ouvre la page en HTTPS. Débranche la ZiGate, sépare les cartes et choisis le module à programmer.
 2. Suis les instructions de mise en mode flash sur la page, puis sélectionne le port USB. La page contrôle la puce avant l’écriture et vérifie la mémoire après l’installation. Tu peux aussi sauvegarder le programme précédent depuis la page.
 3. Pour partir d’un réseau Zigbee neuf, garde la carte radio sur l’USB‑TTL après le flash. Rebranche-la sans maintenir son bouton, puis utilise **Effacer l’ancien réseau Zigbee** sur la page. Cela efface les anciens appairages.
-4. Remonte la ZiGate. Clique sur **Lire la clé Wi-Fi en USB** pour afficher le nom du point d’accès et sa clé. Connecte-toi à ce réseau et ouvre `http://192.168.4.1/`. Renseigne ton Wi‑Fi 2,4 GHz, puis relève l’IP attribuée par le routeur.
+4. Remonte la ZiGate. Clique sur **Lire la clé Wi-Fi en USB** et utilise la clé affichée pour rejoindre le réseau **ZIGATE-…**. Ouvre `http://192.168.4.1/`, puis saisis le nom et le mot de passe du **Wi-Fi 2,4 GHz de ta box**. Après le redémarrage, relève l’IP attribuée par le routeur.
 
 Le [guide complet](LISEZ-MOI.md) décrit aussi le flash avec les outils en ligne de commande. Le [pack ZIP](ZiGate-v1.3-Zigbee2MQTT-1.0.0.zip) contient les binaires, les sources et leurs empreintes. Les sauvegardes réalisées depuis la page restent sur l’ordinateur.
 

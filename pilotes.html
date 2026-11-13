@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/style.css?v=4">
+  <title>Pilotes USB pour Windows · ZiGate</title>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./" aria-label="Accueil ZiGate">
+        <img src="./assets/icon.svg" alt="" width="34" height="34">
+        <span><strong>ZiGate</strong><small>Zigbee2MQTT</small></span>
+      </a>
+      <a class="header-link" href="./#flash">Retour au flasheur</a>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="hero" aria-labelledby="driver-title">
+      <div>
+        <h1 id="driver-title">Pilotes USB pour Windows</h1>
+        <p class="intro">Dans le Gestionnaire de périphériques, ouvre <strong>Ports (COM et LPT)</strong>. Choisis le pilote qui correspond au nom de ton adaptateur.</p>
+      </div>
+    </section>
+    <section class="step-panel" aria-labelledby="cp210x-title">
+      <h2 id="cp210x-title">Silicon Labs CP2102</h2>
+      <ol class="short-steps">
+        <li>Sous Windows 10 ou 11, télécharge <strong>CP210x Universal Windows Driver</strong> et extrais le ZIP.</li>
+        <li>Dans le Gestionnaire de périphériques, choisis <strong>Mettre à jour le pilote</strong> pour l’adaptateur CP2102 et indique le dossier extrait.</li>
+      </ol>
+      <div class="config-links">
+        <a class="button primary" href="https://www.silabs.com/documents/public/software/CP210x_Universal_Windows_Driver.zip">Télécharger chez Silicon Labs <span aria-hidden="true">↓</span></a>
+        <a class="button secondary" href="https://www.catalog.update.microsoft.com/Search.aspx?q=CP210x">Catalogue Microsoft Update <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+    <section class="step-panel step-wifi" aria-labelledby="prolific-title">
+      <h2 id="prolific-title">Prolific PL2303HX</h2>
+      <ol class="short-steps">
+        <li>Sous Windows 10, suis la procédure ZiGate pour l’adaptateur bleu, puis redémarre le PC.</li>
+        <li>Sous Windows 11, si Windows affiche <strong>PL2303HXA PHASED OUT</strong>, utilise ton adaptateur sur un PC Linux ou monte la radio sur un adaptateur CP2102 compatible ZiGate.</li>
+      </ol>
+      <div class="config-links">
+        <a class="button primary" href="https://zigate.fr/documentation/installation-des-pilotes-windows-10/">Procédure ZiGate Windows 10 <span aria-hidden="true">↗</span></a>
+        <a class="button secondary" href="https://raw.githubusercontent.com/fairecasoimeme/ZiGate/26b1bd466b639b7986392d3c1551f2b0627a6cb5/Drivers/Windows10/pilotes_PL2303.zip">Télécharger le ZIP ZiGate <span aria-hidden="true">↓</span></a>
+      </div>
+    </section>
+    <section class="step-panel step-ha" aria-labelledby="backup-title">
+      <h2 id="backup-title">Garder une copie hors ligne</h2>
+      <p class="short-steps">Garde le ZIP de ton adaptateur avec les fichiers de la ZiGate. Si ton pilote est déjà installé, Windows permet aussi de l’exporter.</p>
+      <details class="help-panel">
+        <summary>Exporter un pilote installé</summary>
+        <ol class="short-steps">
+          <li>Ouvre le terminal Windows en administrateur et lance <code>pnputil /enum-drivers</code>. Repère le pilote Silicon Labs ou Prolific et note son nom publié, par exemple <code>oem42.inf</code>.</li>
+          <li>Crée un dossier de sauvegarde et lance la commande ci-dessous en remplaçant le nom et le chemin par les tiens.</li>
+        </ol>
+        <div class="code"><pre><code>pnputil /export-driver oem42.inf "C:\Pilotes-ZiGate"</code></pre></div>
+      </details>
+    </section>
+  </main>
+  <footer class="shell footer">
+    <a href="./#wifi">Reprendre la configuration Wi-Fi</a>
+    <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant/blob/main/LISEZ-MOI.md#port-com-de-la-radio-sous-windows">Tester le port COM <span aria-hidden="true">↗</span></a>
+  </footer>
+</body>
+</html>

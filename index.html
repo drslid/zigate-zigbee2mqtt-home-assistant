@@ -6,7 +6,7 @@
   <meta name="description" content="Mets à jour les modules Wi-Fi ESP8266 et Zigbee JN5168 de ta ZiGate v1.3 depuis Chrome ou Edge.">
   <meta name="theme-color" content="#f5f7f3">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./assets/style.css">
+  <link rel="stylesheet" href="./assets/style.css?v=4">
   <script type="module" src="./app.js?v=3"></script>
   <title>Mise à jour ZiGate Wi-Fi v1.3</title>
 </head>
@@ -99,7 +99,10 @@
           <li>Rebranche l’adaptateur. Dans les propriétés du port, relève son nom et l’éventuel code d’erreur.</li>
         </ol>
         <p>Si Windows affiche <strong>PL2303HXA PHASED OUT</strong>, ouvre le guide ci-dessous pour choisir la marche à suivre selon ta version de Windows.</p>
-        <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant/blob/main/LISEZ-MOI.md#port-com-de-la-radio-sous-windows">Tester le port sous Windows <span aria-hidden="true">↗</span></a>
+        <div class="config-links">
+          <a href="./pilotes.html">Pilotes USB pour Windows <span aria-hidden="true">↓</span></a>
+          <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant/blob/main/LISEZ-MOI.md#port-com-de-la-radio-sous-windows">Tester le port sous Windows <span aria-hidden="true">↗</span></a>
+        </div>
       </details>
       <details class="reset-panel" id="reset-section" hidden>
         <summary>Repartir avec un réseau Zigbee neuf</summary>
@@ -116,16 +119,20 @@
     <section class="step-panel step-wifi" id="wifi" aria-labelledby="wifi-title">
       <div class="step-heading"><span class="step-number" aria-hidden="true">3</span><h2 id="wifi-title"><span class="sr-only">3. </span>Connecte la ZiGate au Wi-Fi</h2></div>
       <ol class="short-steps">
-        <li>Remonte la ZiGate, puis branche-la en USB sans appuyer sur le bouton.</li>
-        <li>Lis le nom et la clé du point d’accès. Connecte ton ordinateur à ce réseau.</li>
-        <li>Ouvre <a href="http://192.168.4.1/" target="_blank" rel="noopener">192.168.4.1</a> et saisis ton Wi-Fi <strong>2,4 GHz</strong>. Après le redémarrage, retrouve l’adresse IP de la ZiGate dans ton routeur.</li>
+        <li>Remonte la ZiGate et branche-la en USB sur ton ordinateur sans appuyer sur le bouton.</li>
+        <li>
+          Lis le nom et la clé du point d’accès. Connecte ton ordinateur à ce réseau.
+          <button id="wifi-setup" class="button secondary wifi-setup-button" type="button" disabled>Lire la clé Wi-Fi en USB</button>
+          <p class="field-hint">Choisis le port USB utilisé pour flasher le module Wi-Fi. Garde la ZiGate branchée et utilise la clé affichée pour rejoindre <strong>ZIGATE-…</strong>.</p>
+          <p id="wifi-status" class="status" role="status" aria-live="polite" hidden></p>
+          <div class="wifi-credentials" id="wifi-credentials" hidden>
+            <dl><div><dt>Réseau ZiGate</dt><dd id="setup-ssid"></dd></div><div><dt>Clé du réseau ZiGate</dt><dd id="setup-password"></dd></div></dl>
+            <button class="button secondary" id="copy-password" type="button">Copier la clé</button>
+          </div>
+        </li>
+        <li>Une fois connecté au réseau <strong>ZIGATE-…</strong>, ouvre <a href="http://192.168.4.1/" target="_blank" rel="noopener">192.168.4.1</a>. Saisis le nom et le mot de passe du <strong>Wi-Fi 2,4 GHz de ta box</strong>. Après le redémarrage, reconnecte ton ordinateur à ta box et retrouve l’adresse IP de la ZiGate dans ton routeur.</li>
       </ol>
-      <button id="wifi-setup" class="button secondary" type="button" disabled>Lire la clé Wi-Fi en USB</button>
-      <p id="wifi-status" class="status" role="status" aria-live="polite" hidden></p>
-      <div class="wifi-credentials" id="wifi-credentials" hidden>
-        <dl><div><dt>Réseau</dt><dd id="setup-ssid"></dd></div><div><dt>Clé Wi-Fi</dt><dd id="setup-password"></dd></div></dl>
-        <button class="button secondary" id="copy-password" type="button">Copier la clé</button>
-      </div>
+      <p class="driver-help">Si le port USB n’apparaît pas sous Windows, ouvre la page <a href="./pilotes.html">Pilotes USB pour Windows</a>.</p>
     </section>
 
     <section class="step-panel step-ha" id="configuration" aria-labelledby="config-title">
