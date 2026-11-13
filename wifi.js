@@ -2,6 +2,24 @@ import {ESPLoader, Transport, md5Hex} from "./assets/esp-tools.js";
 
 const flashBytes = 4 * 1024 * 1024;
 
+async function verifyFlashSize(loader) {
+    // esptool-js 0.7.1 uses zero offsets for the ESP8266's absent length registers.
+    // Its SPI command routine expects null to select the length fields in SPI_USR1.
+    loader.chip.SPI_MOSI_DLEN_OFFS = null;
+    loader.chip.SPI_MISO_DLEN_OFFS = null;
+    const id = (await loader.readFlashId()) & 0xffffff;
+    const jedec = loader.toHex(Uint8Array.of(id, id >>> 8, id >>> 16)).toUpperCase();
+    if (id === 0 || id === 0xffffff) {
+        throw new Error(`La mémoire Wi-Fi ne répond pas (JEDEC ${jedec}). Rebranche le module Wi-Fi seul en maintenant son bouton, puis réessaie.`);
+    }
+    const size = loader.DETECTED_FLASH_SIZES[id >>> 16];
+    if (!size) throw new Error(`Mémoire Wi-Fi de capacité inconnue (JEDEC ${jedec}).`);
+    if (size !== "4MB") {
+        const capacity = size.replace("MB", " Mo").replace("KB", " Ko");
+        throw new Error(`Mémoire Wi-Fi détectée à ${capacity}. Ce firmware exige 4 Mo (JEDEC ${jedec}).`);
+    }
+}
+
 export async function connectWifi(port) {
     const transport = new Transport(port);
     const loader = new ESPLoader({
@@ -19,10 +37,7 @@ export async function connectWifi(port) {
         if (loader.chip?.CHIP_NAME !== "ESP8266") throw new Error("La puce détectée n’est pas un ESP8266.");
         await loader.runStub();
         if (!loader.IS_STUB) throw new Error("Le chargeur de flash ESP8266 n’a pas démarré.");
-        const size = await loader.detectFlashSize();
-        if (size !== "4MB") {
-            throw new Error(size ? `Flash détectée : ${size}. Cette image Wi-Fi exige 4 Mo.` : "La taille de la mémoire Wi-Fi n’a pas pu être détectée.");
-        }
+        await verifyFlashSize(loader);
     } catch (error) {
         await close().catch(() => {});
         throw error;

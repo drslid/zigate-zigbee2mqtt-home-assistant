@@ -185,7 +185,7 @@ connect.addEventListener("click", () => run(byId("status"), async () => {
     const port = await navigator.serial.requestPort();
     status(output, "Identification du module…");
     const device = target === "wifi"
-        ? await (await import("./wifi.js")).connectWifi(port)
+        ? await (await import("./wifi.js?v=2")).connectWifi(port)
         : await connectRadio(port);
     connection = {device, port};
     status(output, device.description, "ok");

@@ -148,14 +148,38 @@ test("the radio network reset sends erase only after identifying 3.23 OPDM", asy
 
 test("ESP8266 checks the chip, memory size and MD5 before confirming flash", async (t) => {
     let chip = "ESP32";
-    let size = "2MB";
+    let jedecId = 0x1540ef;
     let flashCalls = 0;
+    const spi = {
+        command: 0x60000200,
+        user: 0x6000021c,
+        user1: 0x60000220,
+        user2: 0x60000224,
+        data: 0x60000240,
+    };
+    const registers = new Map();
     t.mock.method(ESPLoader.prototype, "detectChip", async function (mode) {
         assert.equal(mode, "no_reset");
-        this.chip = {CHIP_NAME: chip};
+        registers.clear();
+        this.chip = chip === "ESP8266" ? await this.chipFromMagicValue() : {CHIP_NAME: chip};
     });
     t.mock.method(ESPLoader.prototype, "runStub", async function () { this.IS_STUB = true; });
-    t.mock.method(ESPLoader.prototype, "detectFlashSize", async () => size);
+    t.mock.method(ESPLoader.prototype, "readReg", async (address) => {
+        if (address === 0x40001000) return 0xfff0c101;
+        return registers.get(address) ?? 0;
+    });
+    t.mock.method(ESPLoader.prototype, "writeReg", async (address, value) => {
+        if (address === spi.command) {
+            assert.equal(value, 1 << 18, "Only SPI_USR may be written to the command register");
+            assert.equal(registers.get(spi.user) >>> 0, 0x90000000);
+            assert.equal(registers.get(spi.user1), 23 << 8);
+            assert.equal(registers.get(spi.user2), 0x7000009f);
+            assert.equal(registers.get(spi.data), 0);
+            registers.set(spi.data, jedecId);
+            return;
+        }
+        registers.set(address, value);
+    });
     t.mock.method(ESPLoader.prototype, "writeFlash", async function (options) {
         flashCalls++;
         assert.deepEqual(options.fileArray, [{data: wifiImage, address: 0}]);
@@ -166,8 +190,14 @@ test("ESP8266 checks the chip, memory size and MD5 before confirming flash", asy
     const port = {getInfo: () => ({})};
     await assert.rejects(connectWifi(port), /puce détectée/);
     chip = "ESP8266";
-    await assert.rejects(connectWifi(port), /exige 4 Mo/);
-    size = "4MB";
+    await assert.rejects(connectWifi(port), /2 Mo.*exige 4 Mo.*EF4015/);
+    jedecId = 0;
+    await assert.rejects(connectWifi(port), /ne répond pas.*000000/);
+    jedecId = 0xffffff;
+    await assert.rejects(connectWifi(port), /ne répond pas.*FFFFFF/);
+    jedecId = 0x5540ef;
+    await assert.rejects(connectWifi(port), /capacité inconnue.*EF4055/);
+    jedecId = 0x1640ef;
     const device = await connectWifi(port);
     await assert.rejects(device.flash(radioImage, noop), /image Wi-Fi/);
     assert.equal(flashCalls, 0);
