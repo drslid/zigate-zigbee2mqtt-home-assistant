@@ -49,7 +49,14 @@ Après une coupure Wi‑Fi prolongée, le point d’accès de configuration revi
 
 1. Ferme les autres onglets du flasheur et les logiciels qui peuvent utiliser le port, comme PuTTY ou FlashGUI.
 2. Ouvre le **Gestionnaire de périphériques → Ports (COM et LPT)**. Débranche puis rebranche l’adaptateur de la radio. Repère le port qui disparaît puis revient. Si son numéro change, sélectionne le nouveau port dans le flasheur.
-3. Ouvre **Propriétés → Général** pour lire le nom et l’état du périphérique. ZiGate documente un adaptateur bleu **Prolific PL2303HX** et un adaptateur rouge **Silicon Labs CP2102**. En cas d’erreur de pilote, utilise les instructions adaptées à ton modèle et à ta version de Windows. [Pilote Prolific bleu sous Windows 10](https://zigate.fr/documentation/installation-des-pilotes-windows-10/) · [Pilote Silicon Labs CP210x](https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)
+3. Ouvre **Propriétés → Général** pour lire le nom et l’état du périphérique.
+
+Si Windows affiche **« PL2303HXA PHASED OUT SINCE 2012 »**, le pilote Prolific refuse d’ouvrir le port. Tu peux connaître ta version de Windows avec **Win + R**, puis `winver`.
+
+- **Windows 10 et adaptateur Prolific bleu**. Suis la [procédure ZiGate](https://zigate.fr/documentation/installation-des-pilotes-windows-10/) et redémarre le PC.
+- **Windows 11 et adaptateur PL2303HXA**. Utilise l’adaptateur sur un PC Linux, ou monte la radio sur le [module USB‑TTL CP2102 de ZiGate](https://zigate.fr/produit/module-usb-ttl-cp2102/) pour continuer sous Windows. [Pilote Silicon Labs CP210x](https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)
+
+Dès que le port est accessible, reprends à **2. Flashe la radio**. Sélectionne le port attribué à l’adaptateur après l’avoir rebranché en maintenant le bouton de la radio.
 
 Si le port s’affiche sans erreur, ferme le flasheur et teste son ouverture dans **Windows PowerShell**. Remplace `COM9` par le port de l’adaptateur. Ce test ouvre et referme le port sans envoyer de commande à la radio.
 
