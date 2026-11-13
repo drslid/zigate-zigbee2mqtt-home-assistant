@@ -52,10 +52,7 @@ export async function connectWifi(port) {
                 flashSize: "4MB",
                 eraseAll: false,
                 compress: true,
-                calculateMD5Hash(bytes) {
-                    progress("Vérification de la mémoire Wi-Fi", 0, 0);
-                    return md5Hex(bytes);
-                },
+                calculateMD5Hash: md5Hex,
                 reportProgress(_file, written, total) {
                     progress(written === total ? "Vérification de la mémoire Wi-Fi" : "Écriture du firmware Wi-Fi", written, total);
                 },

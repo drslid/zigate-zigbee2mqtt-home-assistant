@@ -1,9 +1,11 @@
 import {openSerial} from "./serial.js";
 
-const chipId = 0x10408686;
+const chipId = 0x00008686;
+const chipIdMask = 0x003fffff; // Part and manufacturer fields, independent of silicon revision.
 const flashBytes = 256 * 1024;
 const blockSize = 128;
 const imageHeader = Uint8Array.of(0x07, 0x03, 0x00, 0x08);
+const imageMagic = Uint8Array.of(0x12, 0x34, 0x56, 0x78, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
 const xor = (bytes) => bytes.reduce((sum, byte) => sum ^ byte, 0);
 const equal = (left, right) => left.length === right.length && left.every((byte, index) => byte === right[index]);
 const view = (bytes) => new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
@@ -48,6 +50,7 @@ async function readFlash(serial, address, count) {
 
 export function validateRadioImage(image) {
     if (image.length < blockSize + 4 || !equal(image.subarray(0, 4), imageHeader) ||
+        !equal(image.subarray(4, 16), imageMagic) ||
         image.length - 4 > flashBytes || view(image).getUint32(0x24) !== image.length - 4) {
         throw new Error("L’image du firmware JN5168 est invalide.");
     }
@@ -57,11 +60,11 @@ export async function connectRadio(port) {
     const serial = await openSerial(port, 38400);
     try {
         const id = await request(serial, 0x32);
-        if (id.length !== 4 || view(id).getUint32(0) !== chipId) {
+        if (id.length < 4 || (view(id).getUint32(0) & chipIdMask) !== chipId) {
             throw new Error("La puce détectée ne correspond pas au JN5168 de cette ZiGate.");
         }
         const flashId = await request(serial, 0x25);
-        if (!equal(flashId, [0xcc, 0xee])) throw new Error("La mémoire interne JN5168 attendue est introuvable.");
+        if (!equal(flashId.subarray(0, 2), [0xcc, 0xee])) throw new Error("La mémoire interne JN5168 attendue est introuvable.");
         await request(serial, 0x2c, [8, 0, 0, 0, 0]);
         await readFlash(serial, 0, 4);
     } catch (error) {

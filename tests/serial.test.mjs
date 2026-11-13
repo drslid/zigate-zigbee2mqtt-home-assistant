@@ -98,10 +98,19 @@ test("JN5168 refuses other hardware and invalid bootloader checksums", async () 
     }
 });
 
+test("JN5168 identifies supported chip revisions with extended bootloader replies", async () => {
+    const {port} = radioPort({chip: [0x10, 0, 0x86, 0x86, 0, 0, 0], flashId: [0xcc, 0xee, 0]});
+    const device = await connectRadio(port);
+    await device.close();
+});
+
 test("JN5168 stops on a bad image, refused erase or readback mismatch", async () => {
     const refused = radioPort({refuseErase: true});
     const device = await connectRadio(refused.port);
     await assert.rejects(device.flash(radioImage.slice(0, -1), noop), /image du firmware/i);
+    const wrongHeader = radioImage.slice();
+    wrongHeader[4] ^= 1;
+    await assert.rejects(device.flash(wrongHeader, noop), /image du firmware/i);
     assert.equal(refused.commands.includes(0x07), false);
     await assert.rejects(device.flash(radioImage, noop), /0xfe/);
     assert.equal(refused.commands.includes(0x09), false);
