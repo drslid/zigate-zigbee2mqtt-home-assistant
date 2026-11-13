@@ -1,7 +1,29 @@
 export async function openSerial(port, baudRate) {
-    await port.open({baudRate, dataBits: 8, stopBits: 1, parity: "none", flowControl: "none", bufferSize: 4096});
-    const reader = port.readable.getReader();
-    const writer = port.writable.getWriter();
+    try {
+        await port.open({baudRate, dataBits: 8, stopBits: 1, parity: "none", flowControl: "none", bufferSize: 4096});
+    } catch (error) {
+        if (error.name === "InvalidStateError") {
+            throw new Error("Le port série est déjà ouvert dans cet onglet. Recharge la page, puis reconnecte le module.", {cause: error});
+        }
+        if (error.name !== "NetworkError") throw error;
+
+        const {usbVendorId, usbProductId} = port.getInfo();
+        const hex = (value) => value.toString(16).toUpperCase().padStart(4, "0");
+        const usbId = usbVendorId !== undefined && usbProductId !== undefined
+            ? ` (USB ${hex(usbVendorId)}:${hex(usbProductId)})`
+            : "";
+        const hint = port.connected === false
+            ? "L’adaptateur a été déconnecté. Rebranche-le, puis sélectionne de nouveau son port."
+            : "Ferme les autres outils série. Sous Windows, vérifie l’état de l’adaptateur dans le Gestionnaire de périphériques.";
+        throw new Error(`Impossible d’ouvrir le port série à ${baudRate} bauds${usbId}. ${hint}`, {cause: error});
+    }
+    const {readable, writable} = port;
+    if (!readable || !writable) {
+        await port.close().catch(() => {});
+        throw new Error("La connexion USB a été interrompue à l’ouverture du port série. Rebranche l’adaptateur.");
+    }
+    const reader = readable.getReader();
+    const writer = writable.getWriter();
     let buffer = new Uint8Array(0);
     let pending;
     let failure;

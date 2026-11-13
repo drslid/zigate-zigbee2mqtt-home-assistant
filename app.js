@@ -1,4 +1,4 @@
-import {connectRadio, resetRadioNetwork} from "./radio.js";
+import {connectRadio, resetRadioNetwork} from "./radio.js?v=3";
 import {readWifiSetup, validIpv4} from "./wifi-setup.js";
 
 const releases = {
@@ -84,6 +84,7 @@ function showTarget() {
     }));
     byId("firmware-version").textContent = release.version;
     byId("firmware-download").href = `./firmwares/${release.file}`;
+    byId("radio-port-help").hidden = target !== "radio";
     showNextStep();
     status(byId("status"), "");
 }
@@ -113,7 +114,7 @@ async function run(output, operation, onError = () => {}, eraseMayHaveStarted = 
         const messages = {
             NotFoundError: "Aucun port série sélectionné.",
             SecurityError: "Le navigateur a bloqué l’accès USB. Ouvre la page GitHub Pages dans son propre onglet Chrome ou Edge.",
-            NetworkError: "Le port USB est occupé ou déconnecté. Ferme les autres outils série, puis rebranche le module.",
+            NetworkError: "Le navigateur n’a pas pu accéder au port série. Ferme les autres outils série et vérifie le branchement USB.",
         };
         const recovery = eraseMayHaveStarted() ? " Si l’écriture a commencé, remets le module en mode flash et relance l’installation." : "";
         status(output, (messages[error.name] ?? error.message) + recovery, error.name === "NotFoundError" ? "" : "error");
@@ -183,7 +184,7 @@ connect.addEventListener("click", () => run(byId("status"), async () => {
     post.hidden = true;
     status(output, "Sélectionne le port de la ZiGate.");
     const port = await navigator.serial.requestPort();
-    status(output, "Identification du module…");
+    status(output, target === "radio" ? "Ouverture du port série et identification du JN5168…" : "Identification du module…");
     const device = target === "wifi"
         ? await (await import("./wifi.js?v=2")).connectWifi(port)
         : await connectRadio(port);

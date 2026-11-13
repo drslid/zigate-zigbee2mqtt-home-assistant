@@ -74,6 +74,34 @@ function radioPort({chip = [0x10, 0x40, 0x86, 0x86], flashId = [0xcc, 0xee], dam
     return {port, flash, commands};
 }
 
+test("JN5168 reports a port-open failure with USB IDs before using the serial streams", async () => {
+    const failure = new DOMException("Failed to open serial port.", "NetworkError");
+    const port = {
+        connected: true,
+        getInfo: () => ({usbVendorId: 0x067b, usbProductId: 0x2303}),
+        async open({baudRate}) {
+            assert.equal(baudRate, 38400);
+            throw failure;
+        },
+        get readable() { assert.fail("The failed port has no readable stream"); },
+    };
+    await assert.rejects(connectRadio(port), {message: /38400 bauds.*USB 067B:2303.*Gestionnaire de périphériques/, cause: failure});
+    port.connected = false;
+    await assert.rejects(connectRadio(port), /adaptateur a été déconnecté/);
+    port.open = async () => { throw new DOMException("The port is already open.", "InvalidStateError"); };
+    await assert.rejects(connectRadio(port), /déjà ouvert dans cet onglet/);
+});
+
+test("JN5168 distinguishes a lost USB connection from a bootloader that gives no reply", async () => {
+    const lost = serialPort(() => { throw new DOMException("The device has been lost.", "NetworkError"); });
+    await assert.rejects(connectRadio(lost), /après l’ouverture du port série/);
+    assert.equal(lost.readable, undefined);
+
+    const silent = serialPort(noop);
+    await assert.rejects(connectRadio(silent), /port série est ouvert, mais le JN5168 ne répond pas/);
+    assert.equal(silent.readable, undefined);
+});
+
 test("JN5168 detects, backs up and writes the complete release with exact readback", async () => {
     const {port, flash, commands} = radioPort();
     const device = await connectRadio(port);

@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#f5f7f3">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./assets/style.css">
-  <script type="module" src="./app.js?v=2"></script>
+  <script type="module" src="./app.js?v=3"></script>
   <title>Mise à jour ZiGate Wi-Fi v1.3</title>
 </head>
 <body>
@@ -91,6 +91,15 @@
         <button id="next-radio" class="button primary" type="button" hidden>Passer à la radio <span aria-hidden="true">→</span></button>
         <a id="next-wifi" class="button primary" href="#wifi" hidden>Connecter la ZiGate au Wi-Fi <span aria-hidden="true">→</span></a>
       </div>
+      <details class="help-panel" id="radio-port-help" hidden>
+        <summary>Le port COM ne s’ouvre pas</summary>
+        <ol class="short-steps">
+          <li>Ferme les autres onglets de flash et les logiciels série.</li>
+          <li>Dans le Gestionnaire de périphériques de Windows, vérifie quel port disparaît quand tu débranches l’adaptateur radio.</li>
+          <li>Rebranche l’adaptateur. Dans les propriétés du port, relève son nom et l’éventuel code d’erreur.</li>
+        </ol>
+        <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant/blob/main/LISEZ-MOI.md#port-com-de-la-radio-sous-windows">Tester le port sous Windows <span aria-hidden="true">↗</span></a>
+      </details>
       <details class="reset-panel" id="reset-section" hidden>
         <summary>Repartir avec un réseau Zigbee neuf</summary>
         <div class="reset-body">

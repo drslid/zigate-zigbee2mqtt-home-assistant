@@ -1,4 +1,4 @@
-import {openSerial} from "./serial.js";
+import {openSerial} from "./serial.js?v=3";
 
 const chipId = 0x00008686;
 const chipIdMask = 0x003fffff; // Part and manufacturer fields, independent of silicon revision.
@@ -69,6 +69,12 @@ export async function connectRadio(port) {
         await readFlash(serial, 0, 4);
     } catch (error) {
         await serial.close().catch(() => {});
+        if (error.name === "NetworkError") {
+            throw new Error("La connexion USB a été interrompue après l’ouverture du port série. Rebranche l’adaptateur radio, puis réessaie.", {cause: error});
+        }
+        if (error.name === "TimeoutError") {
+            throw new Error("Le port série est ouvert, mais le JN5168 ne répond pas. Vérifie que la radio est sur l’adaptateur USB-TTL. Maintiens le bouton de la radio pendant le branchement, puis relâche-le.", {cause: error});
+        }
         throw error;
     }
 

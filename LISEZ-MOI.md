@@ -45,6 +45,23 @@ Après une coupure Wi‑Fi prolongée, le point d’accès de configuration revi
 
 3. Débranche l’USB‑TTL, puis remonte la carte radio et la carte Wi‑Fi. Rebranche l’ensemble en mode normal.
 
+### Port COM de la radio sous Windows
+
+1. Ferme les autres onglets du flasheur et les logiciels qui peuvent utiliser le port, comme PuTTY ou FlashGUI.
+2. Ouvre le **Gestionnaire de périphériques → Ports (COM et LPT)**. Débranche puis rebranche l’adaptateur de la radio. Repère le port qui disparaît puis revient. Si son numéro change, sélectionne le nouveau port dans le flasheur.
+3. Ouvre **Propriétés → Général** pour lire le nom et l’état du périphérique. ZiGate documente un adaptateur bleu **Prolific PL2303HX** et un adaptateur rouge **Silicon Labs CP2102**. En cas d’erreur de pilote, utilise les instructions adaptées à ton modèle et à ta version de Windows. [Pilote Prolific bleu sous Windows 10](https://zigate.fr/documentation/installation-des-pilotes-windows-10/) · [Pilote Silicon Labs CP210x](https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)
+
+Si le port s’affiche sans erreur, ferme le flasheur et teste son ouverture dans **Windows PowerShell**. Remplace `COM9` par le port de l’adaptateur. Ce test ouvre et referme le port sans envoyer de commande à la radio.
+
+```powershell
+$zigatePort = [System.IO.Ports.SerialPort]::new('COM9', 38400, 'None', 8, 'One')
+try { $zigatePort.Open(); 'Port ouvert' }
+catch { $_.Exception.GetBaseException().Message }
+finally { $zigatePort.Dispose() }
+```
+
+Si PowerShell ouvre le port et que Chrome ou Edge échoue encore, tu peux utiliser **FlashGUI** et le binaire JN5168 du projet. [Procédure Windows de ZiGate v1](https://zigate.fr/documentation/mise-a-jour-de-la-zigate/)
+
 ## 3. Lancer Zigbee2MQTT
 
 Utilise le bloc `serial` de [l’exemple de configuration](home-assistant/zigbee2mqtt.example.yaml) dans la configuration d’une instance Zigbee2MQTT 2.x avec un broker MQTT configuré. Remplace `192.168.1.50` par l’adresse de la ZiGate. Arrête toute autre intégration qui utilise cette passerelle avant le démarrage.
