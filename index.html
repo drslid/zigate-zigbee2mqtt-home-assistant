@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mets à jour les modules Wi-Fi ESP8266 et Zigbee JN5168 de ta ZiGate v1.3 depuis Chrome ou Edge.">
+  <meta name="theme-color" content="#f5f7f3">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/style.css">
+  <script type="module" src="./app.js"></script>
+  <title>Mise à jour ZiGate Wi-Fi v1.3</title>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./" aria-label="Accueil ZiGate">
+        <img src="./assets/icon.svg" alt="" width="34" height="34">
+        <span><strong>ZiGate</strong><small>Zigbee2MQTT</small></span>
+      </a>
+      <a class="header-link" href="#configuration">Configurer Home Assistant <span aria-hidden="true">↘</span></a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">ZiGate Wi-Fi v1.3 · Zigbee2MQTT</p>
+        <h1 id="page-title">Ta ZiGate dans<br>Home Assistant.</h1>
+        <p class="intro">Flashe les deux modules par USB, connecte la ZiGate au Wi-Fi, puis ajoute ton premier appareil Zigbee. Ouvre cette page dans <strong>Chrome ou Edge sur ordinateur</strong>.</p>
+      </div>
+      <div class="hardware" aria-label="Deux modules à programmer">
+        <div class="module-label"><span class="chip-art" aria-hidden="true"><svg viewBox="0 0 80 52" fill="none"><path d="M15 6h50v40H15zM25 6v7h7V6h7v7h7V6h7v7h6M10 16h5m-5 7h5m-5 7h5m-5 7h5m50-21h5m-5 7h5m-5 7h5m-5 7h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="25" y="20" width="30" height="17" rx="3" fill="currentColor" opacity=".22"/></svg></span><strong>ESP8266</strong><span>Module Wi-Fi</span></div>
+        <div class="module-label"><span class="chip-art" aria-hidden="true"><svg viewBox="0 0 80 52" fill="none"><rect x="14" y="8" width="52" height="36" rx="4" stroke="currentColor" stroke-width="2"/><rect x="24" y="16" width="32" height="20" rx="3" fill="currentColor" opacity=".24"/><path d="M21 4v4m8-4v4m8-4v4m8-4v4m8-4v4m8-4v4M21 44v4m8-4v4m8-4v4m8-4v4m8-4v4m8-4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><strong>JN5168</strong><span>Radio Zigbee</span></div>
+      </div>
+    </section>
+
+    <section id="flash" aria-labelledby="installer-title">
+      <h2 class="sr-only" id="installer-title">Installer les deux firmwares</h2>
+      <fieldset class="targets" id="targets">
+        <legend class="sr-only">Module à mettre à jour</legend>
+        <label class="target">
+          <input type="radio" name="target" value="wifi" checked>
+          <span class="target-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 9a14 14 0 0 1 18 0M6 12.5a9.5 9.5 0 0 1 12 0m-9 3.6a5 5 0 0 1 6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="19" r="1.15" fill="currentColor"/></svg>
+          </span>
+          <span class="target-text"><strong>1. Flashe le Wi-Fi</strong><small>ESP8266 · 4 Mo</small></span>
+          <span class="target-select" aria-hidden="true"></span>
+        </label>
+        <label class="target">
+          <input type="radio" name="target" value="radio">
+          <span class="target-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="6" y="6" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 3v3m6-3v3M9 18v3m6-3v3M3 9h3m-3 6h3m12-6h3m-3 6h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><rect x="10" y="10" width="4" height="4" rx=".6" fill="currentColor"/></svg>
+          </span>
+          <span class="target-text"><strong>2. Flashe la radio</strong><small>JN5168 · MS5168-M05</small></span>
+          <span class="target-select" aria-hidden="true"></span>
+        </label>
+      </fieldset>
+
+      <div class="installer">
+      <div id="browser-notice" class="notice" hidden></div>
+      <noscript><p class="notice">Active JavaScript pour accéder au port série.</p></noscript>
+      <div class="installer-heading">
+        <p class="eyebrow">Flash USB</p>
+        <span class="version">Version d’essai</span>
+      </div>
+      <div class="preparation">
+        <div class="preparation-text">
+          <h2 id="preparation-title">Branche le module Wi-Fi seul</h2>
+          <ol id="preparation-steps">
+            <li>Débranche la ZiGate et sépare la carte Wi-Fi de la radio.</li>
+            <li>Maintiens le bouton près des broches en branchant l’USB, puis relâche-le.</li>
+          </ol>
+        </div>
+        <p class="firmware-tag" id="firmware-version">Wi-Fi 1.0.0</p>
+      </div>
+
+      <div class="controls">
+        <button id="connect" class="button primary" type="button" disabled>Connecter le module <span aria-hidden="true">↗</span></button>
+        <button id="backup" class="button secondary" type="button" hidden>Sauvegarder</button>
+        <button id="install" class="button primary" type="button" hidden>Installer le firmware <span aria-hidden="true">↗</span></button>
+        <button id="disconnect" class="button secondary" type="button" hidden>Déconnecter</button>
+        <a class="download-link" id="firmware-download" href="./firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.0.0.bin" download>Télécharger le .bin <span aria-hidden="true">↓</span></a>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite" hidden></p>
+      <div id="progress-area" class="progress-area" hidden>
+        <div class="progress-label"><span id="progress-caption">Progression</span><span id="progress-number"></span></div>
+        <progress id="progress" aria-labelledby="progress-caption" max="100"></progress>
+      </div>
+      <p class="post-install" id="post-install" hidden></p>
+      <div class="controls next-controls" id="next-controls" hidden>
+        <button id="next-radio" class="button primary" type="button" hidden>Passer à la radio <span aria-hidden="true">→</span></button>
+        <a id="next-wifi" class="button primary" href="#wifi" hidden>Connecter la ZiGate au Wi-Fi <span aria-hidden="true">→</span></a>
+      </div>
+      <details class="reset-panel" id="reset-section" hidden>
+        <summary>Repartir avec un réseau Zigbee neuf</summary>
+        <div class="reset-body">
+          <p>Après le flash, garde la radio sur l’adaptateur USB-TTL. Débranche et rebranche-la sans maintenir son bouton.</p>
+          <p>La réinitialisation efface les appareils appairés et les paramètres de l’ancien réseau.</p>
+          <button id="reset" class="button secondary" type="button" disabled>Effacer l’ancien réseau</button>
+          <p id="reset-status" class="status" role="status" aria-live="polite" hidden></p>
+        </div>
+      </details>
+      </div>
+    </section>
+
+    <section class="step-panel step-wifi" id="wifi" aria-labelledby="wifi-title">
+      <div class="step-heading"><span class="step-number" aria-hidden="true">3</span><h2 id="wifi-title"><span class="sr-only">3. </span>Connecte la ZiGate au Wi-Fi</h2></div>
+      <ol class="short-steps">
+        <li>Remonte la ZiGate, puis branche-la en USB sans appuyer sur le bouton.</li>
+        <li>Lis le nom et la clé du point d’accès. Connecte ton ordinateur à ce réseau.</li>
+        <li>Ouvre <a href="http://192.168.4.1/" target="_blank" rel="noopener">192.168.4.1</a> et saisis ton Wi-Fi <strong>2,4 GHz</strong>. Après le redémarrage, retrouve l’adresse IP de la ZiGate dans ton routeur.</li>
+      </ol>
+      <button id="wifi-setup" class="button secondary" type="button" disabled>Lire la clé Wi-Fi en USB</button>
+      <p id="wifi-status" class="status" role="status" aria-live="polite" hidden></p>
+      <div class="wifi-credentials" id="wifi-credentials" hidden>
+        <dl><div><dt>Réseau</dt><dd id="setup-ssid"></dd></div><div><dt>Clé Wi-Fi</dt><dd id="setup-password"></dd></div></dl>
+        <button class="button secondary" id="copy-password" type="button">Copier la clé</button>
+      </div>
+    </section>
+
+    <section class="step-panel step-ha" id="configuration" aria-labelledby="config-title">
+      <div class="step-heading"><span class="step-number" aria-hidden="true">4</span><h2 id="config-title"><span class="sr-only">4. </span>Configure Zigbee2MQTT dans Home Assistant</h2></div>
+      <div class="lower-panel">
+        <div class="config-text">
+          <ol class="short-steps">
+            <li>Dans Home Assistant OS, installe et démarre <strong>Mosquitto</strong>.</li>
+            <li>Ajoute le dépôt officiel et installe <strong>Zigbee2MQTT</strong>.</li>
+            <li>Au premier démarrage de Zigbee2MQTT, indique ton broker MQTT, choisis <code>zigate</code>, saisis l’adresse TCP et active la découverte Home Assistant.</li>
+          </ol>
+          <div class="config-links">
+            <a class="button secondary" href="https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto" target="_blank" rel="noopener">Ouvrir Mosquitto <span aria-hidden="true">↗</span></a>
+            <a class="button secondary" href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fzigbee2mqtt%2Fhassio-zigbee2mqtt" target="_blank" rel="noopener">Ajouter Zigbee2MQTT <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="field-hint">Avec Mosquitto sur Home Assistant OS, le broker est <code>mqtt://core-mosquitto:1883</code>. Renseigne aussi ton utilisateur MQTT et son mot de passe.</p>
+        </div>
+        <div class="config-example">
+          <label for="zigate-ip">Adresse IP de ta ZiGate</label>
+          <input type="text" id="zigate-ip" placeholder="192.168.1.50" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="ip-feedback">
+          <p id="ip-feedback" class="field-hint">Remplace l’adresse d’exemple par celle de ton routeur pour la ZiGate.</p>
+          <div class="code">
+          <div class="code-header"><span>configuration.yaml</span><button id="copy" type="button">Copier</button></div>
+          <pre id="config-code"><code>homeassistant:
+  enabled: true
+serial:
+  adapter: zigate
+  port: tcp://192.168.1.50:9999</code></pre>
+          </div>
+        </div>
+      </div>
+      <details class="help-panel">
+        <summary>Réglages MQTT et installation en conteneur</summary>
+        <p>Avec l’application Mosquitto, utilise <code>mqtt://core-mosquitto:1883</code> et un utilisateur MQTT dédié. Pour Home Assistant Container, indique l’adresse de ton broker MQTT.</p>
+        <div class="config-links">
+          <a href="./home-assistant/zigbee2mqtt.example.yaml" download>Exemple YAML complet <span aria-hidden="true">↓</span></a>
+          <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant#installation-dans-home-assistant">Guide Home Assistant <span aria-hidden="true">↗</span></a>
+        </div>
+      </details>
+    </section>
+
+    <section class="step-panel step-pair" aria-labelledby="pair-title">
+      <div class="step-heading"><span class="step-number" aria-hidden="true">5</span><h2 id="pair-title"><span class="sr-only">5. </span>Ajoute ton premier appareil Zigbee</h2></div>
+      <ol class="short-steps">
+        <li>Dans Zigbee2MQTT, vérifie que le coordinateur est connecté, puis active <strong>Autoriser l’appairage</strong>.</li>
+        <li>Mets une ampoule ou un capteur en mode appairage.</li>
+        <li>Dans Home Assistant, ouvre l’intégration <strong>MQTT</strong> dans <strong>Paramètres → Appareils et services</strong>. Ajoute-la si elle manque. Ton appareil doit y apparaître.</li>
+      </ol>
+      <a class="button secondary" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=mqtt" target="_blank" rel="noopener">Configurer MQTT <span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant">Dépôt GitHub <span aria-hidden="true">↗</span></a>
+    <a href="./ZiGate-v1.3-Zigbee2MQTT-1.0.0.zip" download>Télécharger le pack complet <span aria-hidden="true">↓</span></a>
+  </footer>
+
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+    <form method="dialog">
+      <h2 id="confirm-title"></h2>
+      <p id="confirm-description"></p>
+      <div class="dialog-actions">
+        <button type="submit" value="cancel" class="button secondary" autofocus>Annuler</button>
+        <button type="submit" value="confirm" id="confirm-action" class="button primary">Confirmer</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
