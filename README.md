@@ -25,7 +25,7 @@ Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d
 1. Ouvre [la page de flash](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/) et programme le module **Wi-Fi**.
 2. Programme la **radio Zigbee** avec l’adaptateur USB‑TTL.
 3. Remonte la ZiGate et clique sur **Lire la clé Wi-Fi en USB**. Utilise cette clé pour te connecter au réseau **ZIGATE-…**, puis renseigne le Wi-Fi 2,4 GHz de ta box.
-4. Dans Home Assistant, installe **Mosquitto** et **Zigbee2MQTT**, puis renseigne l’adresse de la ZiGate.
+4. Installe l’application **Zigbee2MQTT** depuis la boutique Home Assistant, puis renseigne l’adresse de la ZiGate dans son assistant.
 5. Appaire un appareil dans Zigbee2MQTT et retrouve-le sous **MQTT** dans Home Assistant.
 
 **Guides** · [Flash depuis le navigateur](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/) · [Home Assistant](#installation-dans-home-assistant) · [Pilotes USB pour Windows](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pilotes.html) · [Flash manuel](LISEZ-MOI.md)
@@ -48,11 +48,20 @@ Le [guide complet](LISEZ-MOI.md) décrit aussi le flash avec les outils en ligne
 
 ### Home Assistant OS
 
-1. Dans **Paramètres → Applications → Boutique**, installe et démarre [Mosquitto broker](https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto) si tu n’as pas déjà de broker. Crée un utilisateur local dédié au MQTT dans Home Assistant, par exemple `zigbee2mqtt`, avec son propre mot de passe.
-2. Ajoute le [dépôt officiel de l’application Zigbee2MQTT](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fzigbee2mqtt%2Fhassio-zigbee2mqtt) dans la boutique et installe la version stable. Les intitulés peuvent apparaître comme **Modules complémentaires** dans des versions plus anciennes de Home Assistant.
-3. Au premier lancement de Zigbee2MQTT, renseigne `mqtt://core-mosquitto:1883`, ton utilisateur MQTT, le pilote `zigate` et le port `tcp://IP_DE_LA_ZIGATE:9999`. Active **Home Assistant discovery**. Si tu configures Zigbee2MQTT par fichier, utilise [cet exemple YAML](home-assistant/zigbee2mqtt.example.yaml). Ajoute ces réglages à la configuration de **Zigbee2MQTT** et remplace l’adresse, l’utilisateur et le mot de passe par les tiens.
-4. Dans **Paramètres → Appareils et services**, ouvre ou ajoute l’[intégration MQTT](https://www.home-assistant.io/integrations/mqtt/). Elle doit utiliser le même broker que Zigbee2MQTT.
-5. Dans Zigbee2MQTT, ouvre temporairement l’appairage et ajoute un appareil. Il doit apparaître sous **MQTT** dans Home Assistant. Vérifie une commande ou un changement d’état, puis ferme l’appairage.
+1. Dans **Paramètres → Applications → Installer une application**, installe et démarre [Mosquitto broker](https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto) si tu n’as pas déjà de broker MQTT.
+2. Dans la boutique, ouvre **⋮ → Dépôts**, ajoute `https://github.com/zigbee2mqtt/hassio-zigbee2mqtt`, puis installe l’application **Zigbee2MQTT** stable. [Ajouter le dépôt officiel](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fzigbee2mqtt%2Fhassio-zigbee2mqtt)
+3. Dans l’application, clique sur **Démarrer**, puis **Ouvrir l’interface Web**. Dans l’onglet **Serial** de l’assistant, saisis les deux valeurs ci-dessous, puis clique sur **Submit**. [Adresse TCP à copier](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#configuration)
+
+   | Champ | Valeur |
+   | --- | --- |
+   | **Adapter** | `zigate` |
+   | **Port** | `tcp://192.168.1.50:9999` en remplaçant `192.168.1.50` par l’IP locale de ta ZiGate |
+
+4. Dans **Paramètres → Appareils et services**, configure l’[intégration MQTT](https://www.home-assistant.io/integrations/mqtt/) si nécessaire. Dans Zigbee2MQTT, ouvre temporairement l’appairage et ajoute un appareil. Il doit apparaître sous **MQTT** dans Home Assistant.
+
+Avec Mosquitto sur la même instance Home Assistant, l’application Zigbee2MQTT récupère automatiquement les paramètres du broker et active la découverte Home Assistant. Avec un broker externe, saisis son adresse et ses identifiants dans l’onglet **MQTT** de l’assistant et configure l’intégration MQTT de Home Assistant sur ce même broker.
+
+Pour une application déjà configurée, **Configuration → Afficher les options facultatives → `force_onboarding`** permet de relancer l’assistant après un redémarrage. Désactive cette option après l’enregistrement. Si tu avais déjà renseigné `serial` dans la configuration de l’application, ces valeurs sont prioritaires. [Documentation de l’application Zigbee2MQTT](https://github.com/zigbee2mqtt/hassio-zigbee2mqtt/blob/master/zigbee2mqtt/DOCS.md#onboarding)
 
 ### Home Assistant Container
 

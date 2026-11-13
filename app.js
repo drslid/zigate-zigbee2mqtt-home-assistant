@@ -237,21 +237,27 @@ reset.addEventListener("click", () => run(byId("reset-status"), async () => {
 
 const ipInput = byId("zigate-ip");
 const ipFeedback = byId("ip-feedback");
+const portValue = byId("zigate-tcp-port");
+const copyPort = byId("copy-port");
 const exampleIp = "192.168.1.50";
 
 function updateAddress() {
     const value = ipInput.value.trim();
-    const valid = !value || validIpv4(value);
-    ipInput.setAttribute("aria-invalid", String(!valid));
-    ipFeedback.textContent = valid
-        ? "Utilise l’adresse IPv4 de la ZiGate sur ton réseau local."
-        : "Entre une adresse IPv4, par exemple 192.168.1.50.";
-    byId("copy").disabled = !valid;
+    const valid = validIpv4(value);
+    const invalid = Boolean(value) && !valid;
+    const port = `tcp://${valid ? value : exampleIp}:9999`;
+    ipInput.setAttribute("aria-invalid", String(invalid));
+    ipFeedback.textContent = invalid
+        ? "Entre une adresse IPv4, par exemple 192.168.1.50."
+        : "Utilise l’adresse locale trouvée à l’étape 3.";
+    portValue.textContent = valid ? port : "tcp://ADRESSE_IP:9999";
+    copyPort.disabled = !valid;
+    byId("copy").disabled = invalid;
     byId("config-code").firstElementChild.textContent = `homeassistant:
   enabled: true
 serial:
   adapter: zigate
-  port: tcp://${valid && value ? value : exampleIp}:9999`;
+  port: ${port}`;
 }
 
 ipInput.addEventListener("input", updateAddress);
@@ -267,7 +273,7 @@ wifiSetup.addEventListener("click", () => run(byId("wifi-status"), async () => {
     if (result.ip) {
         ipInput.value = result.ip;
         updateAddress();
-        status(output, `ZiGate connectée à l’adresse ${result.ip}. Le bloc Zigbee2MQTT a été mis à jour.`, "ok");
+        status(output, `ZiGate connectée à l’adresse ${result.ip}. Le port Zigbee2MQTT est prêt à copier à l’étape 4.`, "ok");
     } else {
         byId("setup-ssid").textContent = result.ssid;
         byId("setup-password").textContent = result.password;
@@ -312,6 +318,7 @@ function bindCopy(button, source) {
 }
 
 bindCopy(byId("copy"), byId("config-code"));
+bindCopy(copyPort, portValue);
 bindCopy(byId("copy-password"), byId("setup-password"));
 showTarget();
 updateAddress();

@@ -109,6 +109,7 @@ progress { width: 100%; height: 10px; accent-color: #3e7650; }
 .short-steps strong { color: var(--ink); }
 .lower-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; align-items: start; margin-top: 12px; }
 .config-text .short-steps { margin-top: 0; }
+.app-store-link { margin: 8px 0 10px; }
 .config-links { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .config-example { min-width: 0; }
 .config-example label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 5px; }
@@ -116,6 +117,13 @@ progress { width: 100%; height: 10px; accent-color: #3e7650; }
 .config-example input[aria-invalid="true"] { border-color: #b34035; }
 .field-hint { color: var(--muted); font-size: 12px; margin: 6px 0 10px; }
 .config-example input[aria-invalid="true"] + .field-hint { color: #9a3329; }
+.serial-values { margin: 0; border: 1px solid var(--line); border-radius: 10px; background: #f3f7f4; }
+.serial-values > div { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; align-items: start; padding: 11px 13px; }
+.serial-values > div + div { border-top: 1px solid var(--line); }
+.serial-values dt { font-weight: 700; font-size: 14px; line-height: 1.45; }
+.serial-values dd { margin: 0; min-width: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 7px 12px; }
+.serial-values code { font-size: 13px; overflow-wrap: anywhere; }
+.serial-values button { min-height: 36px; padding: 5px 9px; font-size: 13px; }
 .code { overflow: hidden; border: 1px solid var(--line); background: #f3f7f4; color: var(--ink); border-radius: 10px; font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
 .code-header { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 8px 13px; border-bottom: 1px solid var(--line); }
 .code-header button { background: white; color: var(--green); border: 1px solid #cbdad2; padding: 5px 8px; border-radius: 6px; }
@@ -125,6 +133,7 @@ progress { width: 100%; height: 10px; accent-color: #3e7650; }
 .reset-panel summary, .help-panel summary { padding: 13px 0 0; font-weight: 700; cursor: pointer; color: var(--green); }
 .help-panel p { color: var(--muted); margin: 10px 0; line-height: 1.55; }
 .help-panel .config-links a { font-size: 13px; }
+.help-panel .code + .config-links { margin-top: 10px; }
 .reset-body { padding: 1px 2px 16px; line-height: 1.5; color: var(--muted); }
 .reset-body p:first-child { margin-top: 10px; }
 .reset-body p { margin-bottom: 9px; }

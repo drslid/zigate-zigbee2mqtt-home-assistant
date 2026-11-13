@@ -6,8 +6,8 @@
   <meta name="description" content="Mets à jour les modules Wi-Fi ESP8266 et Zigbee JN5168 de ta ZiGate v1.3 depuis Chrome ou Edge.">
   <meta name="theme-color" content="#f5f7f3">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./assets/style.css?v=4">
-  <script type="module" src="./app.js?v=3"></script>
+  <link rel="stylesheet" href="./assets/style.css?v=5">
+  <script type="module" src="./app.js?v=5"></script>
   <title>Mise à jour ZiGate Wi-Fi v1.3</title>
 </head>
 <body>
@@ -140,33 +140,41 @@
       <div class="lower-panel">
         <div class="config-text">
           <ol class="short-steps">
-            <li>Dans Home Assistant OS, installe et démarre <strong>Mosquitto</strong>.</li>
-            <li>Ajoute le dépôt officiel et installe <strong>Zigbee2MQTT</strong>.</li>
-            <li>Au premier démarrage de Zigbee2MQTT, indique ton broker MQTT, choisis <code>zigate</code>, saisis l’adresse TCP et active la découverte Home Assistant.</li>
+            <li>Dans la <a href="https://my.home-assistant.io/redirect/supervisor_store/" target="_blank" rel="noopener">boutique de Home Assistant</a>, installe et démarre <a href="https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto" target="_blank" rel="noopener"><strong>Mosquitto broker</strong></a> si tu n’as pas déjà de broker MQTT.</li>
+            <li>
+              Ajoute le dépôt officiel, puis installe l’application <strong>Zigbee2MQTT</strong> stable dans la boutique.
+              <div class="app-store-link"><a class="button secondary" href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fzigbee2mqtt%2Fhassio-zigbee2mqtt" target="_blank" rel="noopener">Ajouter le dépôt Zigbee2MQTT <span aria-hidden="true">↗</span></a></div>
+            </li>
+            <li>Dans l’application, clique sur <strong>Démarrer</strong>, puis sur <strong>Ouvrir l’interface Web</strong>.</li>
+            <li>Dans l’onglet <strong>Serial</strong> de l’assistant, choisis <code>zigate</code> dans <strong>Adapter</strong>, colle l’adresse TCP dans <strong>Port</strong>, puis clique sur <strong>Submit</strong>.</li>
           </ol>
-          <div class="config-links">
-            <a class="button secondary" href="https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto" target="_blank" rel="noopener">Ouvrir Mosquitto <span aria-hidden="true">↗</span></a>
-            <a class="button secondary" href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fzigbee2mqtt%2Fhassio-zigbee2mqtt" target="_blank" rel="noopener">Ajouter Zigbee2MQTT <span aria-hidden="true">↗</span></a>
-          </div>
-          <p class="field-hint">Avec Mosquitto sur Home Assistant OS, le broker est <code>mqtt://core-mosquitto:1883</code>. Renseigne aussi ton utilisateur MQTT et son mot de passe.</p>
+          <p class="field-hint">Avec Mosquitto sur le même Home Assistant, garde les réglages MQTT proposés. La découverte des appareils dans Home Assistant est activée par l’application.</p>
         </div>
         <div class="config-example">
           <label for="zigate-ip">Adresse IP de ta ZiGate</label>
           <input type="text" id="zigate-ip" placeholder="192.168.1.50" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="ip-feedback">
-          <p id="ip-feedback" class="field-hint">Remplace l’adresse d’exemple par celle de ton routeur pour la ZiGate.</p>
-          <div class="code">
-          <div class="code-header"><span>configuration.yaml</span><button id="copy" type="button">Copier</button></div>
+          <p id="ip-feedback" class="field-hint">Utilise l’adresse locale trouvée à l’étape 3.</p>
+          <dl class="serial-values">
+            <div><dt>Adapter</dt><dd><code>zigate</code></dd></div>
+            <div><dt>Port</dt><dd><code id="zigate-tcp-port">tcp://ADRESSE_IP:9999</code><button id="copy-port" class="button secondary" type="button" disabled>Copier le port</button></dd></div>
+          </dl>
+        </div>
+      </div>
+      <details class="help-panel">
+        <summary>Relancer l’assistant de démarrage</summary>
+        <p>Dans l’onglet <strong>Configuration</strong> de l’application Zigbee2MQTT, affiche les options facultatives, puis active <code>force_onboarding</code>. Enregistre, redémarre l’application et ouvre son interface Web. Après avoir validé l’assistant, désactive l’option. Si tu avais déjà défini un port ou un adaptateur dans l’onglet <strong>Configuration</strong> de l’application, ces valeurs sont prioritaires.</p>
+      </details>
+      <details class="help-panel">
+        <summary>Broker MQTT externe, Home Assistant Container et YAML</summary>
+        <p>Si tu utilises un broker externe, renseigne son adresse et ses identifiants dans l’onglet <strong>MQTT</strong> de l’assistant. Avec Home Assistant Container, lance Zigbee2MQTT dans son propre conteneur. Voici les réglages pour une configuration par fichier.</p>
+        <div class="code">
+          <div class="code-header"><span>configuration.yaml</span><button id="copy" type="button">Copier le YAML</button></div>
           <pre id="config-code"><code>homeassistant:
   enabled: true
 serial:
   adapter: zigate
   port: tcp://192.168.1.50:9999</code></pre>
-          </div>
         </div>
-      </div>
-      <details class="help-panel">
-        <summary>Réglages MQTT et installation en conteneur</summary>
-        <p>Avec l’application Mosquitto, utilise <code>mqtt://core-mosquitto:1883</code> et un utilisateur MQTT dédié. Pour Home Assistant Container, indique l’adresse de ton broker MQTT.</p>
         <div class="config-links">
           <a href="./home-assistant/zigbee2mqtt.example.yaml" download>Exemple YAML complet <span aria-hidden="true">↓</span></a>
           <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant#installation-dans-home-assistant">Guide Home Assistant <span aria-hidden="true">↗</span></a>
