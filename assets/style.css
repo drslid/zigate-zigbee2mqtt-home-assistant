@@ -39,15 +39,14 @@ button:disabled { cursor: default; opacity: .48; }
 .brand small { margin-top: 3px; font-size: 12px; color: var(--muted); }
 .header-nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px 18px; }
 .header-link { font-size: 14px; font-weight: 650; text-decoration: none; }
-.header-link span { margin-left: 4px; }
-
-.hero { display: grid; grid-template-columns: 1.25fr .75fr; align-items: center; gap: clamp(25px, 6vw, 83px); padding: 45px 0 30px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .55fr); align-items: center; gap: clamp(16px, 4vw, 40px); padding: 38px 0 27px; }
 .eyebrow { margin: 0 0 12px; color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 h1, h2, h3, p { margin-top: 0; }
-h1 { margin-bottom: 13px; font-size: clamp(34px, 5vw, 58px); font-weight: 700; letter-spacing: -.055em; line-height: 1.07; }
+h1 { margin-bottom: 13px; font-size: clamp(34px, 4.5vw, 48px); font-weight: 700; letter-spacing: -.045em; line-height: 1.13; }
 .intro { max-width: 515px; margin: 0; font-size: 16px; line-height: 1.58; color: var(--muted); }
 .intro strong { color: var(--ink); }
-.hero-product { display: block; width: 100%; height: auto; }
+.hero-product { width: min(100%, 246px); margin: 0; justify-self: end; padding: 12px; border: 1px solid #d4e6df; border-radius: 15px; background: #e6f3ed; }
+.hero-product img { display: block; width: 100%; height: auto; }
 
 .installer, .step-panel { background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--green); border-radius: var(--radius); padding: clamp(18px, 3.2vw, 30px); box-shadow: 0 4px 24px #173c3107; }
 .installer-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 11px; }
@@ -72,16 +71,16 @@ h2 { font-size: clamp(21px, 3.1vw, 28px); line-height: 1.2; letter-spacing: -.03
 .preparation { margin: 13px 0 17px; }
 .guide-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 14px; }
 .firmware-tag { color: var(--green); white-space: nowrap; font-family: ui-monospace, Consolas, monospace; font-size: 11px; margin: 2px 0 0; }
-.guide-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; gap: 16px clamp(16px, 4vw, 42px); }
+.guide-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .46fr); align-items: center; gap: 14px clamp(16px, 4vw, 42px); }
 .guide-grid > ol { margin-block: 0; }
 .guide-grid > ol li + li { margin-top: 6px; }
-.guide-figure { min-width: 0; margin: 0; }
-.guide-photo { position: relative; overflow: hidden; border-radius: 10px; background: var(--soft); }
+.guide-figure { width: min(100%, 288px); min-width: 0; margin: 0; justify-self: end; padding: 8px; border: 1px solid #d4e6df; border-radius: 12px; background: #e6f3ed; }
+.guide-figure-peach { background: #fff0e7; border-color: #f3dfd1; }
+.guide-photo { position: relative; overflow: hidden; border-radius: 7px; }
 .guide-photo img { display: block; width: 100%; height: auto; }
-.guide-figure figcaption { margin-top: 5px; color: var(--muted); font-size: 13px; font-weight: 650; }
-.guide-radio-photos { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); align-items: end; gap: 8px; }
+.guide-figure figcaption { margin-top: 6px; color: var(--muted); font-size: 12px; font-weight: 650; text-align: center; }
 .wifi-button-mark { --mark-x: 78.12%; --mark-y: 76.3%; --mark-size: 6.2%; }
-.radio-button-mark { --mark-x: 55.7%; --mark-y: 48.01%; --mark-size: 16%; }
+.radio-button-mark { --mark-x: 80.1%; --mark-y: 50%; --mark-size: 8.3%; }
 .photo-marker {
   position: absolute;
   left: var(--mark-x);
@@ -119,6 +118,19 @@ progress { width: 100%; height: 10px; accent-color: #3e7650; }
 .step-number { width: 35px; height: 35px; display: grid; place-items: center; flex: 0 0 35px; border-radius: 50%; color: var(--green); background: var(--soft); font-weight: 700; }
 .step-wifi .step-number { color: #87502f; background: #fdf0e6; }
 .step-ha .step-number { color: #285974; background: #eef5f9; }
+.mqtt-guide { margin-block: 17px 20px; }
+.mqtt-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-width: 0; padding: 0; margin: 0 0 10px; border: 0; }
+.mqtt-options legend { margin-bottom: 8px; padding: 0; font-size: 14px; font-weight: 700; }
+.mqtt-options .target { gap: 8px; padding: 12px; min-height: 48px; }
+.mqtt-options .target-text strong { font-size: 14px; line-height: 1.3; }
+.mqtt-instructions { display: none; padding: 13px 15px; border: 1px solid #d4e6df; border-radius: 11px; background: #e6f3ed; color: var(--ink); font-size: 14px; line-height: 1.58; }
+.mqtt-guide:has(input[value="existing"]:checked) #mqtt-existing,
+.mqtt-guide:has(input[value="automatic"]:checked) #mqtt-automatic,
+.mqtt-guide:has(input[value="manual"]:checked) #mqtt-manual { display: block; }
+#mqtt-automatic { background: #eaf2ff; border-color: #dce3f4; }
+#mqtt-manual { background: #fff0e7; border-color: #f3dfd1; }
+.mqtt-instructions p { margin-bottom: 10px; }
+.mqtt-instructions p:last-child { margin-bottom: 0; }
 .short-steps { margin: 12px 0 14px; padding-left: 1.4em; color: var(--muted); line-height: 1.65; font-size: 15px; }
 .short-steps li + li { margin-top: 3px; }
 .short-steps strong { color: var(--ink); }
@@ -150,7 +162,7 @@ progress { width: 100%; height: 10px; accent-color: #3e7650; }
 .wifi-setup-button { display: flex; margin-top: 8px; }
 .wifi-form-panel { margin-top: 22px; padding: clamp(16px, 3vw, 23px); border: 1px solid var(--line); border-radius: 12px; background: #f3f7f4; }
 .wifi-form-panel h3 { margin: 0; font-size: 19px; line-height: 1.3; }
-.wifi-setup-guide { margin: 10px 0 16px; grid-template-columns: minmax(0, 1fr) minmax(0, .68fr); }
+.wifi-setup-guide { margin: 10px 0 16px; }
 .wifi-form-panel .short-steps { margin-block: 8px 15px; font-size: 14px; }
 .wifi-form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; margin-bottom: 8px; }
 .wifi-form-panel .config-example > .field-hint { margin: 8px 0 0; }
@@ -176,11 +188,12 @@ dialog p { margin: 12px 0 19px; color: var(--muted); line-height: 1.5; }
   .header-inner { min-height: 61px; }
   .header-link { font-size: 12px; }
   .hero { grid-template-columns: 1fr; gap: 17px; padding: 30px 0 22px; }
-  .hero-product { max-width: 280px; justify-self: center; }
+  .hero-product { max-width: 208px; justify-self: start; }
   .guide-grid { grid-template-columns: minmax(0, 1fr); }
-  .guide-grid > .guide-figure, .guide-radio-photos { grid-row: 1; }
+  .guide-grid > .guide-figure { grid-row: 1; width: min(100%, 242px); justify-self: start; }
   .lower-panel { grid-template-columns: 1fr; gap: 15px; }
   .wifi-form-fields { grid-template-columns: 1fr; }
+  .mqtt-options { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 440px) {

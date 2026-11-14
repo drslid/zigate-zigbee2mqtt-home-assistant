@@ -32,7 +32,7 @@ Ouvre le [guide illustré](https://drslid.github.io/zigate-zigbee2mqtt-home-assi
 | **3. Remonte la ZiGate** | Débranche les cartes, emboîte-les, puis branche la ZiGate **sans appuyer**. |
 
 4. Installe **Zigbee2MQTT ZiGate** dans Home Assistant et saisis l’adresse IP de la clé.
-5. Appaire un appareil dans **Zigbee2MQTT ZiGate**, puis retrouve-le dans l’intégration **MQTT** de Home Assistant.
+5. Choisis ton [parcours MQTT](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#mqtt), démarre **Zigbee2MQTT ZiGate** et appaire ton premier appareil.
 
 **Guides** · [Configurer le Wi-Fi](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi) · [Home Assistant](#installation-dans-home-assistant) · [Pilotes USB pour Windows](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pilotes.html) · [Flash manuel](LISEZ-MOI.md)
 
@@ -58,6 +58,12 @@ Ouvre le [guide illustré](https://drslid.github.io/zigate-zigbee2mqtt-home-assi
 
 Le [guide complet](LISEZ-MOI.md) décrit aussi le flash avec les outils en ligne de commande. Le [pack ZIP](ZiGate-v1.3-Zigbee2MQTT-1.1.1.zip) contient les binaires, les sources et leurs empreintes. Les sauvegardes réalisées depuis la page restent sur l’ordinateur.
 
+### Combien d’appareils peut-on connecter ?
+
+La ZiGate Wi-Fi v1.3 (JN5168) avec le **firmware radio 3.23 OPDM** peut gérer jusqu’à **20 appareils Zigbee en direct** et **70 appareils au total** avec des routeurs Zigbee. Les routeurs, par exemple des prises Zigbee qui relaient le signal, comptent dans ce total. Ces chiffres sont les limites prévues par le firmware. La capacité en pratique dépend du maillage.
+
+[Configuration radio du firmware](https://github.com/fairecasoimeme/ZiGate/blob/78ab96631b85c1d8896198d21f51ff517700771a/ModuleRadio/Firmware/src/ZiGate/Source/ZigbeeNodeControlBridge/ZigbeeNodeControlBridgeCoordinator.zpscfg#L122) · [Limites de la ZiGate v1 avec OptiPDM](https://zigbeefordomoticz.github.io/wiki/fr-fr/Info_Caracteristiques-des-Coordinateurs.html#nombre-dobjet-limit%C3%A9)
+
 ### Changer de Wi-Fi
 
 Avec le firmware 1.1.1, arrête l’application **Zigbee2MQTT ZiGate** si elle est démarrée, puis branche le module Wi-Fi seul, bouton relâché. Saisis le nouveau réseau dans [le formulaire USB de l’étape 1b](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi). La carte enregistre les identifiants après avoir obtenu une adresse IP. Remonte la ZiGate et mets à jour l’adresse dans **Zigbee2MQTT ZiGate → Configuration** si elle a changé. Démarre l’application.
@@ -73,10 +79,16 @@ Les firmwares Wi-Fi 1.0.0, 1.1.0 et 1.1.1 proposent aussi [la configuration via 
 1. Dans **Paramètres → Applications → Installer une application → ⋮ → Dépôts**, ajoute `https://github.com/drslid/zigate-zigbee2mqtt-home-assistant`. [Ajouter le dépôt ZiGate](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdrslid%2Fzigate-zigbee2mqtt-home-assistant)
 2. Installe **Zigbee2MQTT ZiGate**. L’image est assemblée sur ton Home Assistant à partir de l’image officielle Zigbee2MQTT. L’application est disponible sur `amd64` et `aarch64`.
 3. Ouvre **Configuration**, saisis l’adresse IPv4 locale de la ZiGate, choisis un canal différent de celui de ton réseau Zigbee actuel, puis enregistre. [Adresse IP à copier](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#configuration)
-4. Dans **Informations**, clique sur **Démarrer → Ouvrir l’interface Web**. Active **Afficher dans la barre latérale** pour retrouver la page **Zigbee2MQTT ZiGate**.
+4. Prépare le broker MQTT comme indiqué ci-dessous, puis va dans **Informations → Démarrer → Ouvrir l’interface Web**. Active **Afficher dans la barre latérale** pour retrouver la page **Zigbee2MQTT ZiGate**.
 5. Active temporairement l’appairage dans cette page. Le nouvel appareil doit apparaître sous **MQTT** dans Home Assistant.
 
-L’application récupère automatiquement les paramètres de **Mosquitto** s’il est installé dans Home Assistant. Si ton instance actuelle utilise un broker externe, renseigne le même broker et ses identifiants dans **Configuration → Broker MQTT externe**. Pour une première installation, installe [Mosquitto broker](https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto) et ajoute l’[intégration MQTT](https://www.home-assistant.io/integrations/mqtt/) si nécessaire.
+| Parcours MQTT | Que faire ? |
+| --- | --- |
+| **Broker déjà en service** | Garde le même broker. L’application détecte Mosquitto dans Home Assistant. Pour un broker externe, renseigne son adresse et ses identifiants dans **Configuration → Broker MQTT externe**. |
+| **Installation automatique** | Dans [l’assistant MQTT](https://my.home-assistant.io/redirect/config_flow_start/?domain=mqtt), choisis l’application officielle **Mosquitto broker**. Home Assistant l’installe et configure la connexion. |
+| **Mosquitto depuis la boutique** | Installe et démarre [Mosquitto broker](https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto), puis valide l’intégration **MQTT** détectée dans **Appareils et services**. |
+
+[Documentation MQTT de Home Assistant](https://www.home-assistant.io/integrations/mqtt/#configuration)
 
 [Documentation de l’application ZiGate](zigbee2mqtt_zigate/DOCS.md)
 

@@ -6,7 +6,7 @@
   <meta name="description" content="Guide illustré pour flasher et configurer ta ZiGate Wi-Fi v1.3 en USB, puis l’ajouter à Home Assistant avec Zigbee2MQTT.">
   <meta name="theme-color" content="#f5f7f3">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./assets/style.css?v=10">
+  <link rel="stylesheet" href="./assets/style.css?v=11">
   <script type="module" src="./app.js?v=10"></script>
   <title>Mise à jour ZiGate Wi-Fi v1.3</title>
 </head>
@@ -18,8 +18,8 @@
         <span><strong>ZiGate</strong><small>Zigbee2MQTT</small></span>
       </a>
       <nav class="header-nav" aria-label="Accès rapide">
-        <a class="header-link" href="#wifi">Configurer le Wi-Fi <span aria-hidden="true">↘</span></a>
-        <a class="header-link" href="#configuration">Configurer Home Assistant <span aria-hidden="true">↘</span></a>
+        <a class="header-link" href="#wifi">Configurer le Wi-Fi</a>
+        <a class="header-link" href="#configuration">Configurer Home Assistant</a>
       </nav>
     </div>
   </header>
@@ -31,7 +31,9 @@
         <h1 id="page-title">Ta ZiGate dans<br>Home Assistant.</h1>
         <p class="intro">Suis les photos pour préparer ta clé et l’ajouter dans Home Assistant. Ouvre cette page dans <strong>Chrome ou Edge sur ordinateur</strong>.</p>
       </div>
-      <img class="hero-product" src="./assets/guide/zigate-boitier.webp" width="900" height="470" alt="ZiGate Wi-Fi v1.3 dans son boîtier translucide">
+      <figure class="hero-product">
+        <img src="./assets/guide/zigate-boitier.webp" width="560" height="292" alt="ZiGate Wi-Fi v1.3 dans son boîtier translucide">
+      </figure>
     </section>
 
     <section id="flash" aria-labelledby="installer-title">
@@ -78,7 +80,7 @@
           </ol>
           <figure class="guide-figure">
             <div class="guide-photo wifi-button-mark">
-              <img src="./assets/guide/module-wifi.webp" width="745" height="405" alt="Carte Wi-Fi avec la prise USB à gauche et le petit bouton sous les broches à droite">
+              <img src="./assets/guide/module-wifi.webp" width="560" height="304" alt="Carte Wi-Fi avec la prise USB à gauche et le petit bouton sous les broches à droite">
               <span class="photo-marker" aria-hidden="true"></span>
             </div>
             <figcaption>Bouton du module Wi-Fi</figcaption>
@@ -86,32 +88,26 @@
         </div>
         <div class="guide-grid" id="radio-flash-guide" hidden>
           <ol class="short-steps">
-            <li>USB débranché, <strong>emboîte</strong> la radio seule sur l’adaptateur USB‑TTL du kit.</li>
+            <li>Adaptateur USB‑TTL débranché, <strong>emboîte</strong> la radio dessus comme sur la photo.</li>
             <li><strong>Appuie</strong> sur le bouton <strong>S2</strong> de la radio.</li>
             <li><strong>Branche</strong> l’adaptateur en USB en gardant S2 enfoncé.</li>
             <li><strong>Relâche</strong> S2 dès que l’adaptateur est branché.</li>
             <li>Clique sur <strong>Choisir le port USB</strong>, puis sur <strong>Installer le firmware</strong> une fois le port sélectionné.</li>
           </ol>
-          <div class="guide-radio-photos">
-            <figure class="guide-figure">
-              <div class="guide-photo"><img src="./assets/guide/adaptateur-usb-ttl.webp" width="686" height="247" alt="Adaptateur USB-TTL du kit avec cinq broches de connexion" loading="lazy"></div>
-              <figcaption>Adaptateur USB‑TTL</figcaption>
-            </figure>
-            <figure class="guide-figure">
-              <div class="guide-photo radio-button-mark">
-                <img src="./assets/guide/module-radio.webp" width="474" height="402" alt="Carte radio séparée avec le bouton rond S2 entouré" loading="lazy">
-                <span class="photo-marker" aria-hidden="true"></span>
-              </div>
-              <figcaption>Bouton S2 de la radio</figcaption>
-            </figure>
-          </div>
+          <figure class="guide-figure guide-figure-peach">
+            <div class="guide-photo radio-button-mark">
+              <img src="./assets/guide/radio-sur-usb-ttl.webp" width="620" height="244" alt="Radio emboîtée sur l’adaptateur USB‑TTL du kit, prise USB à gauche et bouton S2 entouré à droite" loading="lazy">
+              <span class="photo-marker" aria-hidden="true"></span>
+            </div>
+            <figcaption>Radio sur l’USB‑TTL · bouton S2</figcaption>
+          </figure>
         </div>
       </div>
 
       <div class="controls">
-        <button id="connect" class="button primary" type="button" disabled>Choisir le port USB <span aria-hidden="true">↗</span></button>
+        <button id="connect" class="button primary" type="button" disabled>Choisir le port USB</button>
         <button id="backup" class="button secondary" type="button" hidden>Sauvegarder</button>
-        <button id="install" class="button primary" type="button" hidden>Installer le firmware <span aria-hidden="true">↗</span></button>
+        <button id="install" class="button primary" type="button" hidden>Installer le firmware</button>
         <button id="disconnect" class="button secondary" type="button" hidden>Déconnecter</button>
         <a class="download-link" id="firmware-download" href="./firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin" download>Télécharger le .bin <span aria-hidden="true">↓</span></a>
       </div>
@@ -137,7 +133,7 @@
             </ol>
           </div>
           <figure class="guide-figure">
-            <div class="guide-photo"><img src="./assets/guide/module-wifi.webp" width="745" height="405" alt="Module Wi-Fi seul, séparé de la radio" loading="lazy"></div>
+            <div class="guide-photo"><img src="./assets/guide/module-wifi.webp" width="560" height="304" alt="Module Wi-Fi seul, séparé de la radio" loading="lazy"></div>
             <figcaption>Le bouton reste relâché.</figcaption>
           </figure>
         </div>
@@ -197,8 +193,8 @@
           <li><strong>Branche</strong> la ZiGate montée en USB <strong>sans appuyer sur les boutons</strong>.</li>
           <li>Retrouve son <strong>adresse IP</strong> dans la liste des appareils de ta box.</li>
         </ol>
-        <figure class="guide-figure">
-          <div class="guide-photo"><img src="./assets/guide/zigate-assemblee.webp" width="908" height="350" alt="ZiGate remontée avec le module Wi-Fi à gauche et la radio à droite" loading="lazy"></div>
+        <figure class="guide-figure guide-figure-peach">
+          <div class="guide-photo"><img src="./assets/guide/zigate-assemblee.webp" width="560" height="216" alt="ZiGate remontée avec le module Wi-Fi à gauche et la radio à droite" loading="lazy"></div>
           <figcaption>Les deux cartes emboîtées.</figcaption>
         </figure>
       </div>
@@ -229,12 +225,11 @@
           <ol class="short-steps">
             <li>
               Clique sur <strong>Ajouter le dépôt ZiGate</strong>, puis installe <strong>Zigbee2MQTT ZiGate</strong> dans la <a href="https://my.home-assistant.io/redirect/supervisor_store/" target="_blank" rel="noopener">boutique de Home Assistant</a>.
-              <div class="app-store-link"><a class="button primary" href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdrslid%2Fzigate-zigbee2mqtt-home-assistant" target="_blank" rel="noopener">Ajouter le dépôt ZiGate <span aria-hidden="true">↗</span></a></div>
+              <div class="app-store-link"><a class="button primary" href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdrslid%2Fzigate-zigbee2mqtt-home-assistant" target="_blank" rel="noopener">Ajouter le dépôt ZiGate</a></div>
             </li>
             <li>Dans <strong>Configuration</strong>, saisis l’<strong>adresse IP de la ZiGate</strong>. Si tu as déjà un réseau Zigbee, choisis un autre canal. Enregistre.</li>
-            <li>Clique sur <strong>Démarrer</strong>, puis sur <strong>Ouvrir l’interface Web</strong>. Active <strong>Afficher dans la barre latérale</strong> pour retrouver la page ZiGate.</li>
+            <li>Passe au <a href="#mqtt">choix du broker MQTT</a> avant de démarrer l’application.</li>
           </ol>
-          <p class="field-hint">Les deux instances peuvent utiliser le même broker MQTT. Zigbee2MQTT ZiGate utilise le préfixe <code>zigbee2mqtt_zigate</code>.</p>
         </div>
         <div class="config-example">
           <label for="zigate-ip">Adresse IP de ta ZiGate</label>
@@ -245,11 +240,6 @@
           <p id="ip-feedback" class="field-hint">Utilise l’adresse affichée après la configuration USB ou celle indiquée par ta box.</p>
         </div>
       </div>
-      <details class="help-panel">
-        <summary>Réglages du broker MQTT</summary>
-        <p>Si tu utilises Mosquitto dans Home Assistant, l’application le récupère automatiquement. Si ton broker est externe, renseigne son adresse et ses identifiants dans <strong>Configuration → Broker MQTT externe</strong>.</p>
-        <p>Pour une première installation sans broker MQTT, installe et démarre <a href="https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto" target="_blank" rel="noopener">Mosquitto broker</a>.</p>
-      </details>
       <details class="help-panel">
         <summary>Home Assistant Container et configuration YAML</summary>
         <p>Avec Home Assistant Container, lance une deuxième instance Zigbee2MQTT avec son propre dossier de données. Ajoute l’adresse de ton broker MQTT et choisis un canal Zigbee différent de celui de ton premier réseau.</p>
@@ -270,14 +260,46 @@ serial:
       </details>
     </section>
 
-    <section class="step-panel step-pair" aria-labelledby="pair-title">
-      <div class="step-heading"><span class="step-number" aria-hidden="true">5</span><h2 id="pair-title"><span class="sr-only">5. </span>Ajoute ton premier appareil Zigbee</h2></div>
+    <section class="step-panel step-pair" id="mqtt" aria-labelledby="pair-title">
+      <div class="step-heading"><span class="step-number" aria-hidden="true">5</span><h2 id="pair-title"><span class="sr-only">5. </span>Prépare MQTT et appaire ton premier appareil</h2></div>
+      <div class="mqtt-guide">
+        <fieldset class="mqtt-options">
+          <legend>Choisis ton parcours MQTT</legend>
+          <label class="target">
+            <input type="radio" name="mqtt-setup" value="existing" aria-controls="mqtt-existing" checked>
+            <span class="target-text"><strong>J’ai déjà un broker</strong></span>
+            <span class="target-select" aria-hidden="true"></span>
+          </label>
+          <label class="target">
+            <input type="radio" name="mqtt-setup" value="automatic" aria-controls="mqtt-automatic">
+            <span class="target-text"><strong>Installation automatique</strong></span>
+            <span class="target-select" aria-hidden="true"></span>
+          </label>
+          <label class="target">
+            <input type="radio" name="mqtt-setup" value="manual" aria-controls="mqtt-manual">
+            <span class="target-text"><strong>Mosquitto depuis la boutique</strong></span>
+            <span class="target-select" aria-hidden="true"></span>
+          </label>
+        </fieldset>
+        <div class="mqtt-instructions" id="mqtt-existing">
+          <p>Garde le broker de ton installation actuelle. <strong>Mosquitto</strong> dans Home Assistant est détecté automatiquement. Pour un broker externe, saisis son adresse et ses identifiants dans <strong>Zigbee2MQTT ZiGate → Configuration → Broker MQTT externe</strong>.</p>
+          <p>Si <strong>MQTT</strong> est déjà connecté à ce broker, passe à l’appairage. Sinon, <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=mqtt" target="_blank" rel="noopener">configure l’intégration MQTT</a> avec le même broker.</p>
+        </div>
+        <div class="mqtt-instructions" id="mqtt-automatic">
+          <p>Sur Home Assistant OS, ouvre l’assistant <strong>MQTT</strong> et choisis l’application officielle <strong>Mosquitto broker</strong>. Home Assistant installe Mosquitto et configure la connexion.</p>
+          <a class="button secondary" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=mqtt" target="_blank" rel="noopener">Ouvrir l’assistant MQTT</a>
+        </div>
+        <div class="mqtt-instructions" id="mqtt-manual">
+          <p>Sur Home Assistant OS, installe et démarre <strong>Mosquitto broker</strong> depuis la boutique. Dans <strong>Paramètres → Appareils et services</strong>, configure l’intégration <strong>MQTT</strong> détectée et confirme la connexion à Mosquitto.</p>
+          <a class="button secondary" href="https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_mosquitto" target="_blank" rel="noopener">Ouvrir Mosquitto broker</a>
+        </div>
+      </div>
       <ol class="short-steps">
-        <li>Ouvre <strong>Zigbee2MQTT ZiGate</strong> et clique sur <strong>Autoriser l’appairage</strong>.</li>
-        <li>Mets une ampoule ou un capteur en mode appairage.</li>
-        <li>Dans Home Assistant, ouvre l’intégration <strong>MQTT</strong> dans <strong>Paramètres → Appareils et services</strong>. Ajoute-la si elle manque. Ton appareil doit y apparaître.</li>
+        <li>Démarre <strong>Zigbee2MQTT ZiGate</strong>, puis clique sur <strong>Ouvrir l’interface Web</strong>.</li>
+        <li>Clique sur <strong>Autoriser l’appairage</strong>, puis mets ton appareil en mode appairage.</li>
+        <li>Retrouve l’appareil dans <strong>Paramètres → Appareils et services → MQTT</strong>.</li>
       </ol>
-      <a class="button secondary" href="https://my.home-assistant.io/redirect/config_flow_start/?domain=mqtt" target="_blank" rel="noopener">Configurer MQTT <span aria-hidden="true">↗</span></a>
+      <p class="field-hint">Active <strong>Afficher dans la barre latérale</strong> dans l’application pour retrouver l’interface ZiGate.</p>
     </section>
   </main>
 
