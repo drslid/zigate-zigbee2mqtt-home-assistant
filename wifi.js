@@ -1,3 +1,4 @@
+import {LocalizedError, t} from "./languages.js?v=1";
 import {ESPLoader, Transport, md5Hex} from "./assets/esp-tools.js";
 
 const flashBytes = 4 * 1024 * 1024;
@@ -10,13 +11,14 @@ async function verifyFlashSize(loader) {
     const id = (await loader.readFlashId()) & 0xffffff;
     const jedec = loader.toHex(Uint8Array.of(id, id >>> 8, id >>> 16)).toUpperCase();
     if (id === 0 || id === 0xffffff) {
-        throw new Error(`La mémoire Wi-Fi ne répond pas (JEDEC ${jedec}). Rebranche le module Wi-Fi seul en maintenant son bouton, puis réessaie.`);
+        throw new LocalizedError("wifiFlashNoResponse", {jedec});
     }
     const size = loader.DETECTED_FLASH_SIZES[id >>> 16];
-    if (!size) throw new Error(`Mémoire Wi-Fi de capacité inconnue (JEDEC ${jedec}).`);
+    if (!size) throw new LocalizedError("wifiFlashUnknown", {jedec});
     if (size !== "4MB") {
-        const capacity = size.replace("MB", " Mo").replace("KB", " Ko");
-        throw new Error(`Mémoire Wi-Fi détectée à ${capacity}. Ce firmware exige 4 Mo (JEDEC ${jedec}).`);
+        const [value, unit] = size.split(/(?=[MK]B$)/);
+        const capacity = () => t(unit === "MB" ? "sizeMb" : "sizeKb", {value});
+        throw new LocalizedError("wifiFlashSize", {capacity, jedec});
     }
 }
 
@@ -34,9 +36,9 @@ export async function connectWifi(port) {
 
     try {
         await loader.detectChip("no_reset");
-        if (loader.chip?.CHIP_NAME !== "ESP8266") throw new Error("La puce détectée n’est pas un ESP8266.");
+        if (loader.chip?.CHIP_NAME !== "ESP8266") throw new LocalizedError("wifiWrongChip");
         await loader.runStub();
-        if (!loader.IS_STUB) throw new Error("Le chargeur de flash ESP8266 n’a pas démarré.");
+        if (!loader.IS_STUB) throw new LocalizedError("wifiStubFailed");
         await verifyFlashSize(loader);
     } catch (error) {
         await close().catch(() => {});
@@ -44,21 +46,21 @@ export async function connectWifi(port) {
     }
 
     return {
-        description: "ESP8266 détecté · flash de 4 Mo",
+        get description() { return t("wifiDetected"); },
         close,
         async backup(progress) {
             loader.FLASH_READ_TIMEOUT = 12000;
             const image = await loader.readFlash(0, flashBytes, (_packet, received, total) => progress(received, total));
             const checksum = await transport.read(12000);
             if (image.length !== flashBytes || checksum.length !== 16 || loader.toHex(checksum) !== md5Hex(image)) {
-                throw new Error("La sauvegarde Wi-Fi ne correspond pas à la mémoire lue.");
+                throw new LocalizedError("wifiBackupMismatch");
             }
             return image;
         },
         async flash(image, progress) {
             if (image.length < 0x1004 || image.length > flashBytes ||
                 image[0] !== 0xe9 || image[0x1000] !== 0xe9 || image[2] !== 2 || image[3] !== 0x40) {
-                throw new Error("L’image Wi-Fi ESP8266 4 Mo est invalide.");
+                throw new LocalizedError("wifiImageInvalid");
             }
             await loader.writeFlash({
                 fileArray: [{data: image, address: 0}],
@@ -69,7 +71,8 @@ export async function connectWifi(port) {
                 compress: true,
                 calculateMD5Hash: md5Hex,
                 reportProgress(_file, written, total) {
-                    progress(written === total ? "Vérification de la mémoire Wi-Fi" : "Écriture du firmware Wi-Fi", written, total);
+                    const key = written === total ? "wifiVerifying" : "wifiWriting";
+                    progress(t(key), written, total, key);
                 },
             });
         },

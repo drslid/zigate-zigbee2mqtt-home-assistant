@@ -1,24 +1,25 @@
-import {connectRadio, resetRadioNetwork} from "./radio.js?v=3";
-import {configureWifi, readWifiSetup, validIpv4, wifiInputErrors} from "./wifi-setup.js?v=3";
+import {languageEvents, LocalizedError, setText, t} from "./languages.js?v=1";
+import {connectRadio, resetRadioNetwork} from "./radio.js?v=4";
+import {configureWifi, readWifiSetup, validIpv4, wifiInputErrors} from "./wifi-setup.js?v=4";
 
 const releases = {
     wifi: {
-        title: "Branche le module Wi-Fi seul",
-        version: "Wi-Fi 1.1.1",
+        title: "prepareWifi",
+        version: "wifiVersion",
         file: "ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin",
         sha256: "59d2c4a152af4257041bd724959994563e6a401ea095a31434891d0b11034409",
         backup: "sauvegarde-ZiGate-ESP8266.bin",
-        installText: "Le firmware Wi-Fi va être remplacé. Garde le module branché jusqu’à la fin de la vérification.",
-        next: "Firmware Wi-Fi installé. Passe à l’étape 1b pour configurer le Wi-Fi.",
+        installText: "installWifiWarning",
+        next: "wifiInstalledNext",
     },
     radio: {
-        title: "Branche la radio sur l’adaptateur USB‑TTL",
-        version: "Radio 3.23 OPDM",
+        title: "prepareRadio",
+        version: "radioVersion",
         file: "ZiGate-Radio-JN5168-v3.23-OPDM-Z2M.bin",
         sha256: "c6dce9820c03cb2f60ef22f147d4de86bf4525cf1139a5f80fed5ea62414a06a",
         backup: "sauvegarde-ZiGate-JN5168.bin",
-        installText: "Le programme du JN5168 va être effacé puis réécrit. Garde le module branché jusqu’à la fin de la vérification.",
-        next: "La radio est prête. Pour repartir de zéro, efface l’ancien réseau avant de remonter la ZiGate.",
+        installText: "installRadioWarning",
+        next: "radioInstalledNext",
     },
 };
 
@@ -44,7 +45,7 @@ let busy = false;
 const installed = new Set();
 
 function status(element, message, kind = "") {
-    element.textContent = message;
+    setText(element, message);
     element.hidden = !message;
     element.dataset.kind = kind;
 }
@@ -66,7 +67,7 @@ function updateControls() {
 
 function showNextStep() {
     const done = installed.has(target);
-    post.textContent = releases[target].next;
+    setText(post, releases[target].next);
     post.hidden = !done;
     byId("next-controls").hidden = !done;
     byId("next-wifi").hidden = target !== "wifi";
@@ -76,10 +77,10 @@ function showNextStep() {
 
 function showTarget() {
     const release = releases[target];
-    byId("preparation-title").textContent = release.title;
+    setText(byId("preparation-title"), release.title);
     byId("wifi-flash-guide").hidden = target !== "wifi";
     byId("radio-flash-guide").hidden = target !== "radio";
-    byId("firmware-version").textContent = release.version;
+    setText(byId("firmware-version"), release.version);
     byId("firmware-download").href = `./firmwares/${release.file}`;
     byId("radio-port-help").hidden = target !== "radio";
     byId("wifi").hidden = target !== "wifi";
@@ -87,18 +88,17 @@ function showTarget() {
     status(byId("status"), "");
 }
 
-function showProgress(label, done, total) {
+function showProgress(key, done, total) {
     const meter = byId("progress");
     byId("progress-area").hidden = false;
-    if (byId("progress-caption").textContent !== label) byId("progress-caption").textContent = label;
+    setText(byId("progress-caption"), key);
     if (total > 0) {
         const percent = Math.min(100, Math.floor(100 * done / total));
         meter.value = percent;
-        const number = `${percent} %`;
-        if (byId("progress-number").textContent !== number) byId("progress-number").textContent = number;
+        setText(byId("progress-number"), () => new Intl.NumberFormat(document.documentElement.lang, {style: "percent"}).format(percent / 100));
     } else {
         meter.removeAttribute("value");
-        byId("progress-number").textContent = "";
+        setText(byId("progress-number"), "");
     }
 }
 
@@ -110,12 +110,19 @@ async function run(output, operation, onError = () => {}, eraseMayHaveStarted = 
         await operation();
     } catch (error) {
         const messages = {
-            NotFoundError: "Aucun port série sélectionné.",
-            SecurityError: "Le navigateur a bloqué l’accès USB. Ouvre la page GitHub Pages dans son propre onglet Chrome ou Edge.",
-            NetworkError: "Le navigateur n’a pas pu accéder au port série. Ferme les autres outils série et vérifie le branchement USB.",
+            NotFoundError: "noPort",
+            SecurityError: "usbBlocked",
+            NetworkError: "serialUnavailable",
+            TimeoutError: "serialTimeout",
         };
-        const recovery = eraseMayHaveStarted() ? " Si l’écriture a commencé, remets le module en mode flash et relance l’installation." : "";
-        status(output, (messages[error.name] ?? error.message) + recovery, error.name === "NotFoundError" ? "" : "error");
+        const key = Object.hasOwn(messages, error.name) ? messages[error.name] : undefined;
+        const knownError = error instanceof LocalizedError;
+        if (!key && !knownError) console.error(error);
+        const recovery = eraseMayHaveStarted();
+        status(output, () => {
+            const message = knownError ? error.translate() : t(key ?? "unknownError");
+            return recovery ? `${message} ${t("flashRecovery")}` : message;
+        }, error.name === "NotFoundError" ? "" : "error");
         await onError();
     } finally {
         byId("progress-area").hidden = true;
@@ -131,9 +138,9 @@ async function closeConnection() {
 }
 
 function confirmAction(title, description, action) {
-    byId("confirm-title").textContent = title;
-    byId("confirm-description").textContent = description;
-    byId("confirm-action").textContent = action;
+    setText(byId("confirm-title"), title);
+    setText(byId("confirm-description"), description);
+    setText(byId("confirm-action"), action);
     dialog.returnValue = "";
     const confirmed = new Promise((resolve) => {
         dialog.addEventListener("close", () => resolve(dialog.returnValue === "confirm"), {once: true});
@@ -144,11 +151,11 @@ function confirmAction(title, description, action) {
 
 async function readFirmware(release) {
     const response = await fetch(new URL(`./firmwares/${release.file}`, import.meta.url));
-    if (!response.ok) throw new Error("Le firmware est indisponible. Réessaie ou télécharge le pack complet.");
+    if (!response.ok) throw new LocalizedError("firmwareUnavailable");
     const image = new Uint8Array(await response.arrayBuffer());
     const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", image));
     const hash = Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
-    if (hash !== release.sha256) throw new Error("Le fichier reçu ne correspond pas au firmware attendu.");
+    if (hash !== release.sha256) throw new LocalizedError("firmwareMismatch");
     return image;
 }
 
@@ -181,23 +188,23 @@ nextRadio.addEventListener("click", () => {
 connect.addEventListener("click", () => run(byId("status"), async () => {
     const output = byId("status");
     post.hidden = true;
-    status(output, "Sélectionne le port de la ZiGate.");
+    status(output, "selectZigatePort");
     const port = await navigator.serial.requestPort();
-    status(output, target === "radio" ? "Ouverture du port série et identification du JN5168…" : "Identification du module…");
+    status(output, target === "radio" ? "identifyRadio" : "identifyModule");
     const device = target === "wifi"
-        ? await (await import("./wifi.js?v=2")).connectWifi(port)
+        ? await (await import("./wifi.js?v=3")).connectWifi(port)
         : await connectRadio(port);
     connection = {device, port};
-    status(output, device.description, "ok");
+    status(output, () => device.description, "ok");
 }));
 
 backup.addEventListener("click", () => run(byId("status"), async () => {
-    status(byId("status"), target === "wifi" ? "Lecture des 4 Mo. Cette opération peut prendre plusieurs minutes." : "Lecture du firmware radio…");
-    const data = await connection.device.backup((done, total) => showProgress("Sauvegarde du firmware", done, total));
+    status(byId("status"), target === "wifi" ? "backupWifiProgress" : "backupRadioProgress");
+    const data = await connection.device.backup((done, total) => showProgress("backupProgress", done, total));
     saveBackup(data, releases[target].backup);
     status(byId("status"), target === "wifi"
-        ? "Sauvegarde Wi-Fi créée. Garde-la en local, elle peut contenir ta configuration Wi-Fi."
-        : "Sauvegarde du programme radio créée. L’EEPROM des appairages est indépendante.", "ok");
+        ? "wifiBackupDone"
+        : "radioBackupDone", "ok");
 }, () => closeConnection().catch(() => {})));
 
 install.addEventListener("click", () => {
@@ -205,40 +212,39 @@ install.addEventListener("click", () => {
     void run(byId("status"), async () => {
         const output = byId("status");
         const release = releases[target];
-        if (!await confirmAction("Installer le firmware ?", release.installText, "Installer")) return;
-        status(output, "Vérification du fichier téléchargé…");
+        if (!await confirmAction("installConfirm", release.installText, "installAction")) return;
+        status(output, "verifyDownload");
         const data = await readFirmware(release);
-        status(output, "Garde le module branché pendant l’installation.");
+        status(output, "installKeepConnected");
         flashing = true;
-        await connection.device.flash(data, showProgress);
+        await connection.device.flash(data, (_label, done, total, key) => showProgress(key, done, total));
         await closeConnection().catch(() => {});
         installed.add(target);
         if (target === "radio") byId("reset-section").open = true;
-        status(output, "Firmware installé et vérifié.", "ok");
+        status(output, "firmwareInstalled", "ok");
         showNextStep();
     }, () => closeConnection().catch(() => {}), () => flashing);
 });
 
 disconnect.addEventListener("click", () => run(byId("status"), async () => {
     await closeConnection();
-    status(byId("status"), "Port série libéré.");
+    status(byId("status"), "portReleased");
 }));
 
 reset.addEventListener("click", () => run(byId("reset-status"), async () => {
     const output = byId("reset-status");
-    if (!await confirmAction("Effacer le réseau Zigbee ?", "Les appairages et paramètres de l’ancien réseau seront effacés de la radio.", "Effacer le réseau")) return;
-    status(output, "Sélectionne le port de la radio en mode normal.");
+    if (!await confirmAction("resetConfirm", "resetWarning", "resetAction")) return;
+    status(output, "selectRadioPort");
     const port = await navigator.serial.requestPort();
-    status(output, "Vérification du firmware radio…");
-    await resetRadioNetwork(port, () => status(output, "Effacement du réseau et redémarrage de la radio…"));
-    status(output, "La radio a redémarré avec un réseau vierge. Tu peux remonter la ZiGate.", "ok");
+    status(output, "verifyRadio");
+    await resetRadioNetwork(port, () => status(output, "resetProgress"));
+    status(output, "resetDone", "ok");
 }));
 
 const ipInput = byId("zigate-ip");
 const ipFeedback = byId("ip-feedback");
 const copyIp = byId("copy-ip");
 const exampleIp = "192.168.1.50";
-const ipHint = ipFeedback.textContent;
 
 function updateAddress() {
     const value = ipInput.value.trim();
@@ -246,9 +252,7 @@ function updateAddress() {
     const invalid = Boolean(value) && !valid;
     const port = `tcp://${valid ? value : exampleIp}:9999`;
     ipInput.setAttribute("aria-invalid", String(invalid));
-    ipFeedback.textContent = invalid
-        ? "Entre une adresse IPv4, par exemple 192.168.1.50."
-        : ipHint;
+    setText(ipFeedback, invalid ? "ipInvalid" : "ipHint");
     copyIp.disabled = !valid;
     byId("copy").disabled = invalid;
     byId("config-code").firstElementChild.textContent = `homeassistant:
@@ -282,28 +286,36 @@ function showLinkedWifi() {
 window.addEventListener("hashchange", showLinkedWifi);
 showLinkedWifi();
 
+function updateWifiValidity() {
+    const errors = wifiInputErrors(wifiSsid.value, wifiPassword.value);
+    wifiSsid.setCustomValidity(errors.ssid);
+    wifiPassword.setCustomValidity(errors.password);
+}
+
+languageEvents.addEventListener("change", () => {
+    if (wifiSsid.validity.customError || wifiPassword.validity.customError) updateWifiValidity();
+});
+
 wifiForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const ssid = wifiSsid.value;
     const password = wifiPassword.value;
-    const errors = wifiInputErrors(ssid, password);
-    wifiSsid.setCustomValidity(errors.ssid);
-    wifiPassword.setCustomValidity(errors.password);
+    updateWifiValidity();
     if (!wifiForm.reportValidity()) return;
 
     void run(byId("wifi-usb-status"), async () => {
         const output = byId("wifi-usb-status");
-        status(output, "Sélectionne le port USB du module Wi-Fi.");
+        status(output, "selectWifiPort");
         const port = await navigator.serial.requestPort();
-        status(output, "Vérification du firmware Wi-Fi…");
+        status(output, "verifyWifi");
         const ip = await configureWifi(port, ssid, password, () => {
-            status(output, "Connexion au Wi-Fi… Attends jusqu’à 30 secondes.");
+            status(output, "wifiJoining");
         });
         wifiPassword.value = "";
         showZigateAddress(ip);
         nextRadio.hidden = !installed.has("wifi") || installed.has("radio");
         byId("wifi-next-ha").hidden = false;
-        status(output, `Wi-Fi enregistré. La ZiGate est connectée à l’adresse ${ip}.`, "ok");
+        status(output, () => t("wifiSaved", {ip}), "ok");
     });
 });
 
@@ -312,18 +324,18 @@ wifiSetup.addEventListener("click", () => run(byId("wifi-status"), async () => {
     byId("wifi-credentials").hidden = true;
     byId("setup-ssid").textContent = "";
     byId("setup-password").textContent = "";
-    status(output, "Sélectionne le port USB du module Wi-Fi en mode normal.");
+    status(output, "selectNormalWifiPort");
     const port = await navigator.serial.requestPort();
-    status(output, "Lecture du module Wi-Fi…");
+    status(output, "readWifi");
     const result = await readWifiSetup(port);
     if (result.ip) {
         showZigateAddress(result.ip);
-        status(output, `ZiGate connectée à l’adresse ${result.ip}. Tu peux copier cette adresse à l’étape 4.`, "ok");
+        status(output, () => t("wifiIpFound", {ip: result.ip}), "ok");
     } else {
         byId("setup-ssid").textContent = result.ssid;
         byId("setup-password").textContent = result.password;
         byId("wifi-credentials").hidden = false;
-        status(output, "Point d’accès trouvé. Connecte ton ordinateur à ce réseau.", "ok");
+        status(output, "wifiApFound", "ok");
     }
 }));
 
@@ -332,26 +344,27 @@ if (available) {
         if (!busy && event.target === connection?.port) {
             void run(byId("status"), async () => {
                 await closeConnection().catch(() => {});
-                status(byId("status"), "Module déconnecté.");
+                status(byId("status"), "moduleDisconnected");
             });
         }
     });
+    setText(byId("wifi-form-note"), "wifiFormNote");
 } else {
     const notice = byId("browser-notice");
-    notice.textContent = "Le flash et la configuration USB demandent Chrome ou Edge sur ordinateur et une page ouverte en HTTPS ou sur localhost. Les fichiers .bin restent téléchargeables.";
+    setText(notice, "browserNotice");
     notice.hidden = false;
-    byId("wifi-form-note").textContent = "Ouvre cette page dans Chrome ou Edge sur ordinateur pour utiliser l’USB.";
+    setText(byId("wifi-form-note"), "wifiFormUnsupported");
 }
 
 function bindCopy(button, source) {
-    const label = button.textContent;
+    const label = button.dataset.i18n;
     const isInput = source instanceof HTMLInputElement;
     let timer;
     button.addEventListener("click", async () => {
         clearTimeout(timer);
         try {
             await navigator.clipboard.writeText(isInput ? source.value.trim() : source.textContent);
-            button.textContent = "Copié";
+            setText(button, "copied");
         } catch {
             if (isInput) {
                 source.focus();
@@ -363,9 +376,9 @@ function bindCopy(button, source) {
                 selection.removeAllRanges();
                 selection.addRange(range);
             }
-            button.textContent = "Sélectionné";
+            setText(button, "selected");
         }
-        timer = setTimeout(() => { button.textContent = label; }, 1800);
+        timer = setTimeout(() => { setText(button, label); }, 1800);
     });
 }
 

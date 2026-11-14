@@ -1,4 +1,5 @@
-import {openSerial} from "./serial.js?v=3";
+import {LocalizedError, t} from "./languages.js?v=1";
+import {openSerial} from "./serial.js?v=4";
 
 const chipId = 0x00008686;
 const chipIdMask = 0x003fffff; // Part and manufacturer fields, independent of silicon revision.
@@ -12,7 +13,7 @@ const view = (bytes) => new DataView(bytes.buffer, bytes.byteOffset, bytes.byteL
 
 // JN-AN-1003 defines a length byte, message type, payload and XOR checksum.
 export function bootFrame(type, payload = new Uint8Array(0)) {
-    if (payload.length > 253) throw new Error("Trame du chargeur JN5168 trop longue.");
+    if (payload.length > 253) throw new LocalizedError("radioFrameLong");
     const frame = new Uint8Array(payload.length + 3);
     frame[0] = payload.length + 2;
     frame[1] = type;
@@ -24,13 +25,13 @@ export function bootFrame(type, payload = new Uint8Array(0)) {
 async function request(serial, command, payload, timeout = 2500) {
     await serial.write(bootFrame(command, payload));
     const [length] = await serial.readExact(1, timeout);
-    if (length < 3) throw new Error("Réponse série invalide. Vérifie le mode flash du module radio.");
+    if (length < 3) throw new LocalizedError("radioBadResponse");
     const answer = await serial.readExact(length, timeout);
     if (xor(answer) !== length || answer[0] !== command + 1) {
-        throw new Error("Réponse inattendue du chargeur JN5168. Rebranche le module en mode flash.");
+        throw new LocalizedError("radioUnexpectedResponse");
     }
     if (answer[1] !== 0) {
-        throw new Error(`Le chargeur JN5168 a refusé une commande (code 0x${answer[1].toString(16).padStart(2, "0")}).`);
+        throw new LocalizedError("radioCommandRejected", {code: answer[1].toString(16).padStart(2, "0")});
     }
     return answer.subarray(2, -1);
 }
@@ -44,7 +45,7 @@ function addressPayload(address, tail) {
 
 async function readFlash(serial, address, count) {
     const result = await request(serial, 0x0b, addressPayload(address, [count, 0]));
-    if (result.length !== count) throw new Error("La lecture de la mémoire radio est incomplète.");
+    if (result.length !== count) throw new LocalizedError("radioReadIncomplete");
     return result;
 }
 
@@ -52,7 +53,7 @@ export function validateRadioImage(image) {
     if (image.length < blockSize + 4 || !equal(image.subarray(0, 4), imageHeader) ||
         !equal(image.subarray(4, 16), imageMagic) ||
         image.length - 4 > flashBytes || view(image).getUint32(0x24) !== image.length - 4) {
-        throw new Error("L’image du firmware JN5168 est invalide.");
+        throw new LocalizedError("radioImageInvalid");
     }
 }
 
@@ -61,30 +62,30 @@ export async function connectRadio(port) {
     try {
         const id = await request(serial, 0x32);
         if (id.length < 4 || (view(id).getUint32(0) & chipIdMask) !== chipId) {
-            throw new Error("La puce détectée ne correspond pas au JN5168 de cette ZiGate.");
+            throw new LocalizedError("radioWrongChip");
         }
         const flashId = await request(serial, 0x25);
-        if (!equal(flashId.subarray(0, 2), [0xcc, 0xee])) throw new Error("La mémoire interne JN5168 attendue est introuvable.");
+        if (!equal(flashId.subarray(0, 2), [0xcc, 0xee])) throw new LocalizedError("radioFlashMissing");
         await request(serial, 0x2c, [8, 0, 0, 0, 0]);
         await readFlash(serial, 0, 4);
     } catch (error) {
         await serial.close().catch(() => {});
         if (error.name === "NetworkError") {
-            throw new Error("La connexion USB a été interrompue après l’ouverture du port série. Rebranche l’adaptateur radio, puis réessaie.", {cause: error});
+            throw new LocalizedError("radioUsbInterrupted", undefined, {cause: error});
         }
         if (error.name === "TimeoutError") {
-            throw new Error("Le port série est ouvert, mais le JN5168 ne répond pas. Vérifie que la radio est sur l’adaptateur USB-TTL. Maintiens le bouton de la radio pendant le branchement, puis relâche-le.", {cause: error});
+            throw new LocalizedError("radioBootTimeout", undefined, {cause: error});
         }
         throw error;
     }
 
     return {
-        description: "JN5168 détecté · flash interne",
+        get description() { return t("radioDetected"); },
         close: serial.close,
         async backup(progress) {
             const first = await readFlash(serial, 0, blockSize);
             const length = view(first).getUint32(0x20);
-            if (length < blockSize || length > flashBytes) throw new Error("L’ancien firmware radio n’a pas de longueur exploitable.");
+            if (length < blockSize || length > flashBytes) throw new LocalizedError("radioBackupLength");
             const image = new Uint8Array(4 + length);
             image.set(imageHeader);
             image.set(first, 4);
@@ -99,21 +100,21 @@ export async function connectRadio(port) {
         async flash(image, progress) {
             validateRadioImage(image);
             const data = image.subarray(4);
-            progress("Effacement de la mémoire radio", 0, data.length);
+            progress(t("radioErasing"), 0, data.length, "radioErasing");
             await request(serial, 0x07, undefined, 12000);
             const blank = await readFlash(serial, 0, 64);
-            if (blank.some((byte) => byte !== 0xff)) throw new Error("La mémoire radio n’est pas vide après l’effacement.");
+            if (blank.some((byte) => byte !== 0xff)) throw new LocalizedError("radioEraseFailed");
 
             for (let offset = 0; offset < data.length; offset += blockSize) {
                 const block = data.subarray(offset, offset + blockSize);
                 await request(serial, 0x09, addressPayload(offset, block));
-                progress("Écriture du firmware radio", offset + block.length, data.length);
+                progress(t("radioWriting"), offset + block.length, data.length, "radioWriting");
             }
             for (let offset = 0; offset < data.length; offset += blockSize) {
                 const block = data.subarray(offset, offset + blockSize);
                 const actual = await readFlash(serial, offset, block.length);
-                if (!equal(actual, block)) throw new Error(`Vérification radio échouée à l’adresse 0x${offset.toString(16)}.`);
-                progress("Vérification de la mémoire radio", offset + block.length, data.length);
+                if (!equal(actual, block)) throw new LocalizedError("radioVerifyFailed", {address: offset.toString(16)});
+                progress(t("radioVerifying"), offset + block.length, data.length, "radioVerifying");
             }
         },
     };
@@ -158,7 +159,7 @@ async function waitForAppFrame(serial, code, duration) {
             frame = undefined;
         }
     }
-    throw new DOMException("Le firmware radio n’a pas répondu.", "TimeoutError");
+    throw new DOMException(t("radioTimeout"), "TimeoutError");
 }
 
 export async function resetRadioNetwork(port, onErase) {
@@ -167,14 +168,14 @@ export async function resetRadioNetwork(port, onErase) {
         await serial.write(appFrame(0x0010));
         const version = await waitForAppFrame(serial, 0x8010, 4000);
         if (!equal(version, [0, 4, 3, 0x23])) {
-            throw new Error("La version radio attendue (3.23 OPDM) n’a pas été détectée.");
+            throw new LocalizedError("radioVersionMissing");
         }
         onErase();
         await serial.write(appFrame(0x0012));
         await waitForAppFrame(serial, 0x8007, 8500);
     } catch (error) {
         if (error.name === "TimeoutError") {
-            throw new Error("La radio n’a pas confirmé le redémarrage. Vérifie qu’elle est branchée sur son USB-TTL en mode normal, puis réessaie.");
+            throw new LocalizedError("radioResetTimeout");
         }
         throw error;
     } finally {

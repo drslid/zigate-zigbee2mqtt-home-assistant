@@ -1,3 +1,4 @@
+import {LocalizedError, t} from "./languages.js?v=1";
 import {openSerial} from "./serial.js";
 
 const baudRate = 115200;
@@ -31,7 +32,7 @@ async function readWifiResult(serial, timeout, parseLine) {
             line = (line + String.fromCharCode(byte)).slice(-224);
         }
     }
-    throw new DOMException("Le module ne répond pas sur le port série.", "TimeoutError");
+    throw new DOMException(t("serialTimeout"), "TimeoutError");
 }
 
 export async function readWifiSetup(port) {
@@ -40,20 +41,25 @@ export async function readWifiSetup(port) {
         return await readWifiResult(serial, 18000, parseWifiLine);
     } catch (error) {
         if (error.name !== "TimeoutError") throw error;
-        throw new Error("Aucun message Wi-Fi reçu. Rebranche l’ESP8266 sans maintenir son bouton. S’il est déjà connecté, retrouve son adresse dans ton routeur.");
+        throw new LocalizedError("wifiSetupNoMessage");
     } finally {
         await serial.close().catch(() => {});
     }
 }
 
-export function wifiInputErrors(ssid, password) {
+function wifiInputErrorKeys(ssid, password) {
     const ssidBytes = encoder.encode(ssid).length;
     const invalidSsid = ssidBytes === 0 || ssidBytes > 32 || /[\u0000-\u001f\u007f]/.test(ssid);
     const validPassword = password === "" || /^[ -~]{8,63}$/.test(password) || /^[0-9a-f]{64}$/i.test(password);
     return {
-        ssid: invalidSsid ? "Saisis un nom de réseau de 1 à 32 octets." : "",
-        password: validPassword ? "" : "Saisis un mot de passe de 8 à 63 caractères ASCII ou une clé hexadécimale de 64 caractères.",
+        ssid: invalidSsid ? "invalidSsid" : "",
+        password: validPassword ? "" : "invalidPassword",
     };
+}
+
+export function wifiInputErrors(ssid, password) {
+    const errors = wifiInputErrorKeys(ssid, password);
+    return {ssid: errors.ssid ? t(errors.ssid) : "", password: errors.password ? t(errors.password) : ""};
 }
 
 function hexWifiField(value) {
@@ -71,12 +77,12 @@ async function waitForWifiModule(serial) {
             if (error.name !== "TimeoutError") throw error;
         }
     }
-    throw new Error("Le port USB est ouvert, mais le module Wi-Fi ne répond pas. Vérifie que le firmware 1.1.1 est installé et rebranche le module bouton relâché. Si Zigbee2MQTT ZiGate est démarré, arrête cette application et réessaie.");
+    throw new LocalizedError("wifiHelloFailed");
 }
 
 export async function configureWifi(port, ssid, password, onConnect) {
-    const errors = wifiInputErrors(ssid, password);
-    if (errors.ssid || errors.password) throw new Error(errors.ssid || errors.password);
+    const errors = wifiInputErrorKeys(ssid, password);
+    if (errors.ssid || errors.password) throw new LocalizedError(errors.ssid || errors.password);
     const serial = await openSerial(port, baudRate);
     try {
         // Identify the ZiGate firmware before sending any credentials to the selected port.
@@ -91,14 +97,14 @@ export async function configureWifi(port, ssid, password, onConnect) {
         });
         if (response.startsWith("OK ") && validIpv4(response.slice(3))) return response.slice(3);
         const messages = {
-            "ERROR CONNECT": "Connexion Wi-Fi impossible. Vérifie le nom et le mot de passe du réseau 2,4 GHz, puis réessaie. Les réglages précédents sont conservés.",
-            "ERROR INVALID": "Le module a refusé les identifiants Wi-Fi. Vérifie les champs et réessaie.",
-            "ERROR STORAGE": "La carte n’a pas pu enregistrer les réglages Wi-Fi. Réessaie avec le module rebranché.",
+            "ERROR CONNECT": "wifiConnectFailed",
+            "ERROR INVALID": "wifiCredentialsRejected",
+            "ERROR STORAGE": "wifiStorageFailed",
         };
-        throw new Error(messages[response] ?? "Réponse Wi-Fi inattendue. Vérifie l’adresse de la ZiGate dans ta box avant de réessayer.");
+        throw new LocalizedError(messages[response] ?? "wifiUnexpectedReply");
     } catch (error) {
         if (error.name !== "TimeoutError") throw error;
-        throw new Error("Le module n’a pas confirmé l’enregistrement. Vérifie s’il apparaît dans ta box, puis réessaie si besoin.");
+        throw new LocalizedError("wifiSaveTimeout");
     } finally {
         await serial.close().catch(() => {});
     }
