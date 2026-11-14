@@ -5,7 +5,7 @@
 <p align="center">
   <strong>Réutilise ta ZiGate Wi-Fi v1.3 dans Home Assistant.</strong>
   <br>
-  Deux firmwares, un outil de flash et de configuration Wi-Fi par USB et une application Zigbee2MQTT dédiée à la ZiGate.
+  Un guide illustré pour flasher les deux cartes, configurer le Wi-Fi par USB et installer l’application Zigbee2MQTT ZiGate.
 </p>
 
 <p align="center">
@@ -22,13 +22,27 @@
 
 Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d’un ordinateur avec **Chrome ou Edge**.
 
-1. Installe le firmware **Wi-Fi 1.1.1**, rebranche le module Wi-Fi seul, bouton relâché, puis saisis le Wi-Fi 2,4 GHz de ta box dans [le formulaire USB de l’étape 1b](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi). La page affiche l’adresse IP du module.
-2. Programme la **radio Zigbee** avec l’adaptateur USB‑TTL.
-3. Remonte la ZiGate et branche-la. Elle rejoint le Wi-Fi enregistré à l’étape 1.
-4. Installe **Zigbee2MQTT ZiGate** depuis la boutique Home Assistant et renseigne l’adresse IP de la passerelle dans **Configuration**.
-5. Appaire un appareil dans **Zigbee2MQTT ZiGate** et retrouve-le sous **MQTT** dans Home Assistant.
+Ouvre le [guide illustré](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#flash) et suis les étapes.
 
-**Guides** · [Flash depuis le navigateur](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/) · [Home Assistant](#installation-dans-home-assistant) · [Pilotes USB pour Windows](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pilotes.html) · [Flash manuel](LISEZ-MOI.md)
+| Étape | Geste au branchement |
+| --- | --- |
+| **1a. Flashe le module Wi-Fi seul** | Appuie sur le petit bouton, branche le module en USB, puis relâche. |
+| **1b. Configure le Wi-Fi par USB** | Rebranche le module Wi-Fi seul **sans appuyer**, puis saisis les identifiants de ta box. |
+| **2. Flashe la radio Zigbee** | Monte la radio sur l’USB‑TTL du kit débranché. Appuie sur **S2**, branche l’adaptateur, puis relâche. |
+| **3. Remonte la ZiGate** | Débranche les cartes, emboîte-les, puis branche la ZiGate **sans appuyer**. |
+
+4. Installe **Zigbee2MQTT ZiGate** dans Home Assistant et saisis l’adresse IP de la clé.
+5. Appaire un appareil dans **Zigbee2MQTT ZiGate**, puis retrouve-le dans l’intégration **MQTT** de Home Assistant.
+
+**Guides** · [Configurer le Wi-Fi](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi) · [Home Assistant](#installation-dans-home-assistant) · [Pilotes USB pour Windows](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pilotes.html) · [Flash manuel](LISEZ-MOI.md)
+
+## Aperçu du tableau de bord
+
+<p align="center">
+  <a href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/">
+    <img src="docs/assets/dashboard.jpg" alt="Page de flash ZiGate avec les étapes USB et le bouton du module Wi-Fi entouré sur la photo" width="1200">
+  </a>
+</p>
 
 ## Mettre à jour la ZiGate
 
@@ -39,7 +53,7 @@ Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d
 
 1. Ouvre la page en HTTPS. Débranche la ZiGate, sépare les cartes et choisis le module à programmer.
 2. Suis les instructions de mise en mode flash sur la page, puis sélectionne le port USB. La page contrôle la puce avant l’écriture et vérifie la mémoire après l’installation. Tu peux aussi sauvegarder le programme précédent depuis la page.
-3. Pour partir d’un réseau Zigbee neuf, garde la carte radio sur l’USB‑TTL après le flash. Rebranche-la sans maintenir son bouton, puis utilise **Effacer l’ancien réseau Zigbee** sur la page. Cela efface les anciens appairages.
+3. Pour partir d’un réseau Zigbee neuf, garde la carte radio sur l’USB‑TTL après le flash. Débranche l’adaptateur, rebranche-le **sans appuyer sur S2**, puis clique sur **Effacer l’ancien réseau**. Les anciens appairages seront effacés.
 4. Une fois les deux cartes préparées, débranche-les, remonte la ZiGate et branche-la bouton relâché.
 
 Le [guide complet](LISEZ-MOI.md) décrit aussi le flash avec les outils en ligne de commande. Le [pack ZIP](ZiGate-v1.3-Zigbee2MQTT-1.1.1.zip) contient les binaires, les sources et leurs empreintes. Les sauvegardes réalisées depuis la page restent sur l’ordinateur.

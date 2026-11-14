@@ -2,6 +2,8 @@
 
 Version d’essai 1.1.1 pour la ZiGate équipée du module Zigbee Meshreen **MS5168‑M05 (NXP JN5168)** et du module Wi‑Fi **ESP8266 / ESP‑12F**. Le changement de Wi-Fi par USB a été testé en simulation et reste à valider sur la carte physique.
 
+Les boutons et le montage sont repérés sur les photos du [guide illustré](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#flash).
+
 | Fichier | Carte à programmer | Base |
 | --- | --- | --- |
 | `firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin` | Carte Wi‑Fi portant le module `ESP8266MOD` | Schéma et fonctionnement du firmware Wi‑Fi ZiGate v1.3 |
@@ -11,7 +13,7 @@ Le firmware Wi‑Fi transmet les trames ZiGate sur TCP `9999` et utilise l’UAR
 
 ## 1. Programmer le module Wi‑Fi
 
-1. Débranche la ZiGate et sépare les deux cartes. Sur la **carte ESP8266 seule**, maintiens le bouton près des broches pendant le branchement USB, puis relâche-le. [Procédure ZiGate](https://zigate.fr/documentation/mise-a-jour-module-wifi/)
+1. Débranche la ZiGate et sépare les deux cartes. Sur la **carte ESP8266 seule**, appuie sur le petit bouton sous les broches. Branche la carte en USB en gardant le bouton enfoncé, puis relâche-le dès qu’elle est branchée. [Procédure ZiGate](https://zigate.fr/documentation/mise-a-jour-module-wifi/)
 2. Dans le dossier extrait, installe `esptool` et interroge la mémoire. Remplace `PORT_WIFI` par le port affiché par ton ordinateur, par exemple `COM5` sous Windows ou `/dev/ttyUSB0` sous Linux. Sous Windows, `py` peut remplacer `python`.
 
    ```sh
@@ -34,7 +36,7 @@ Après environ 45 secondes sans connexion à un réseau enregistré, le point d�
 
 ## 2. Programmer le module radio
 
-1. Débranche les cartes. Monte le **JN5168** sur l’**adaptateur USB‑TTL ZiGate** du kit. Maintiens le bouton du module radio pendant le branchement, puis relâche-le. La prise USB du module ESP8266 sert à programmer le Wi‑Fi. [Procédure officielle pour la radio ZiGate v1](https://zigate.fr/documentation/mise-a-jour-de-la-zigate/)
+1. Débranche les cartes. Monte le **JN5168** sur l’**adaptateur USB‑TTL ZiGate** du kit. Appuie sur le bouton **S2** de la radio, branche l’adaptateur en gardant S2 enfoncé, puis relâche dès qu’il est branché. [Procédure officielle pour la radio ZiGate v1](https://zigate.fr/documentation/mise-a-jour-de-la-zigate/)
 2. Programme `firmwares/ZiGate-Radio-JN5168-v3.23-OPDM-Z2M.bin` avec l’outil adapté à ton ordinateur.
 
    - **Windows**. Ouvre `FlashGui.exe` dans **NXP JN51xx Flash Programmer**, sélectionne le fichier et le port COM puis lance `Program`. Pour repartir de zéro, la documentation ZiGate indique `Erase EEPROM` puis `Complete EEPROM` après la programmation.
@@ -60,7 +62,7 @@ Si Windows affiche **« PL2303HXA PHASED OUT SINCE 2012 »**, le pilote Prolific
 - **Windows 10 et adaptateur Prolific bleu**. Suis la [procédure ZiGate](https://zigate.fr/documentation/installation-des-pilotes-windows-10/) et redémarre le PC.
 - **Windows 11 et adaptateur PL2303HXA**. Utilise l’adaptateur sur un PC Linux, ou monte la radio sur le [module USB‑TTL CP2102 de ZiGate](https://zigate.fr/produit/module-usb-ttl-cp2102/) pour continuer sous Windows. [Pilote Silicon Labs CP210x](https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)
 
-Dès que le port est accessible, reprends à **2. Flashe la radio**. Sélectionne le port attribué à l’adaptateur après l’avoir rebranché en maintenant le bouton de la radio.
+Dès que le port est accessible, reprends à **2. Flashe la radio**. Maintiens **S2** en rebranchant l’adaptateur. Relâche **S2**, puis sélectionne le port.
 
 Si le port s’affiche sans erreur, ferme le flasheur et teste son ouverture dans **Windows PowerShell**. Remplace `COM9` par le port de l’adaptateur. Ce test ouvre et referme le port sans envoyer de commande à la radio.
 
