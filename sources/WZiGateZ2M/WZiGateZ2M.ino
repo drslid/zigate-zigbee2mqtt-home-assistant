@@ -17,6 +17,10 @@ constexpr uint32_t kSetupAfterMs = 45000;
 constexpr uint32_t kSetupNoticeMs = 5000;
 constexpr uint32_t kListenRetryMs = 1000;
 constexpr uint32_t kRestartDelayMs = 1500;
+constexpr uint32_t kSetupButtonHoldMs = 2000;
+constexpr uint32_t kUsbSetupWindowMs = 120000;
+constexpr uint32_t kUsbWifiConnectMs = 30000;
+constexpr uint8_t kSetupButtonPin = 0;
 constexpr size_t kUartBuffer = 2048;
 constexpr char kConfigPath[] = "/zigate-wifi-v1.cfg";
 constexpr char kTempConfigPath[] = "/zigate-wifi.tmp";
@@ -60,6 +64,8 @@ bool setupActive = false;
 bool bridgeOnline = false;
 bool radioFault = false;
 bool restartPending = false;
+bool usbSetupActive = false;
+bool buttonHandled = false;
 IPAddress bridgeAddress;
 uint32_t offlineSince = 0;
 uint32_t lastReconnectAttempt = 0;
@@ -67,6 +73,8 @@ uint32_t lastSetupAttempt = 0;
 uint32_t lastSetupNotice = 0;
 uint32_t lastListenAttempt = 0;
 uint32_t savedAt = 0;
+uint32_t buttonReleasedAt = 0;
+uint32_t usbSetupSince = 0;
 
 template <size_t Size>
 bool readField(const char* field, char (&out)[Size]) {
@@ -194,19 +202,20 @@ void setupWifiAP() {
     printSetupAddress();
 }
 
-void setupSTAWifi() {
+void setupSTAWifi(const WifiConfig& config) {
     if (!WiFi.enableSTA(true)) {
         return;
     }
     WiFi.setAutoReconnect(true);
     WiFi.hostname(setupName);
     IPAddress ip, mask, gateway;
-    if (wifiConfig.ip[0] != '\0' &&
-        (!parseAddresses(wifiConfig, ip, mask, gateway) || !WiFi.config(ip, gateway, mask))) {
+    if (config.ip[0] == '\0') {
+        WiFi.config(IPAddress(0U), IPAddress(0U), IPAddress(0U));
+    } else if (!parseAddresses(config, ip, mask, gateway) || !WiFi.config(ip, gateway, mask)) {
         Serial.println(F("Adresse fixe refusée. Utilisation du DHCP."));
         WiFi.config(IPAddress(0U), IPAddress(0U), IPAddress(0U));
     }
-    WiFi.begin(static_cast<const char*>(wifiConfig.ssid), wifiConfig.password);
+    WiFi.begin(config.ssid, config.password);
 }
 
 void closeClient() {
@@ -215,16 +224,19 @@ void closeClient() {
     toTcp.clear();
 }
 
-void startBridge(const IPAddress& address) {
-    lastListenAttempt = millis();
+void stopWifiAP() {
     if (setupActive) {
         setupServer.client().stop(1);
         setupServer.stop();
         WiFi.enableAP(false);
         setupActive = false;
     }
+}
 
-    Serial.print(F("ZiGate Wi-Fi Z2M 1.0.0 | IP : "));
+void startBridge(const IPAddress& address) {
+    lastListenAttempt = millis();
+    stopWifiAP();
+    Serial.print(F("ZiGate Wi-Fi Z2M 1.1.0 | IP : "));
     Serial.println(address);
     Serial.flush();
     if (!Serial.pins(15, 13)) {
@@ -252,7 +264,141 @@ void stopBridge() {
     Serial.flush();
     Serial.pins(1, 3);
     bridgeOnline = false;
-    Serial.println(F("Wi-Fi déconnecté. Reconnexion en cours."));
+}
+
+void openUsbSetup() {
+    if (bridgeOnline) {
+        stopBridge();
+    }
+    usbSetupActive = true;
+    usbSetupSince = millis();
+}
+
+void serviceSetupButton() {
+    const uint32_t now = millis();
+    if (usbSetupActive && now - usbSetupSince >= kUsbSetupWindowMs) {
+        usbSetupActive = false;
+    }
+    if (digitalRead(kSetupButtonPin) == HIGH) {
+        buttonReleasedAt = now;
+        buttonHandled = false;
+    } else if (!buttonHandled && now - buttonReleasedAt >= kSetupButtonHoldMs) {
+        buttonHandled = true;
+        openUsbSetup();
+    }
+}
+
+int hexDigit(char value) {
+    if (value >= '0' && value <= '9') return value - '0';
+    if (value >= 'a' && value <= 'f') return value - 'a' + 10;
+    return -1;
+}
+
+template <size_t Size>
+bool readHex(const char* text, size_t length, char (&out)[Size]) {
+    if (length % 2 != 0 || length / 2 >= Size) return false;
+    for (size_t i = 0; i < length; i += 2) {
+        const int high = hexDigit(text[i]);
+        const int low = hexDigit(text[i + 1]);
+        if (high < 0 || low < 0 || (high == 0 && low == 0)) return false;
+        out[i / 2] = static_cast<char>(high * 16 + low);
+    }
+    out[length / 2] = '\0';
+    return true;
+}
+
+void restoreWifi() {
+    WiFi.disconnect(true);
+    if (configured) {
+        setupSTAWifi(wifiConfig);
+    } else {
+        setupWifiAP();
+    }
+    offlineSince = lastReconnectAttempt = millis();
+    usbSetupSince = offlineSince;
+}
+
+void saveUsbWifi(const WifiConfig& next) {
+    if (!storageReady) {
+        Serial.println(F("ZIGATE-WIFI/1 ERROR STORAGE"));
+        return;
+    }
+
+    stopWifiAP();
+    WiFi.disconnect(true);
+    IPAddress address;
+    {
+        const auto gotIp = WiFi.onStationModeGotIP([&address](const WiFiEventStationModeGotIP& event) {
+            address = event.ip;
+        });
+        setupSTAWifi(next);
+        const uint32_t startedAt = millis();
+        while (millis() - startedAt < kUsbWifiConnectMs &&
+               (!address.isSet() || WiFi.status() != WL_CONNECTED || WiFi.localIP() != address)) {
+            delay(25);
+        }
+    }
+
+    if (!address.isSet() || WiFi.status() != WL_CONNECTED || WiFi.localIP() != address) {
+        restoreWifi();
+        Serial.println(F("ZIGATE-WIFI/1 ERROR CONNECT"));
+        return;
+    }
+    if (!saveConfig(next)) {
+        restoreWifi();
+        Serial.println(F("ZIGATE-WIFI/1 ERROR STORAGE"));
+        return;
+    }
+
+    wifiConfig = next;
+    configured = true;
+    Serial.print(F("ZIGATE-WIFI/1 OK "));
+    Serial.println(address);
+    Serial.flush();
+    usbSetupActive = false;
+}
+
+void handleUsbLine(const char* line) {
+    constexpr char setPrefix[] = "ZIGATE-WIFI/1 SET ";
+    if (strcmp(line, "ZIGATE-WIFI/1 HELLO") == 0) {
+        openUsbSetup();
+        Serial.println(F("ZIGATE-WIFI/1 READY"));
+    } else if (usbSetupActive && strncmp(line, setPrefix, sizeof(setPrefix) - 1) == 0) {
+        const char* ssid = line + sizeof(setPrefix) - 1;
+        const char* separator = strchr(ssid, ' ');
+        WifiConfig next;
+        if (!separator || !readHex(ssid, separator - ssid, next.ssid) ||
+            !readHex(separator + 1, strlen(separator + 1), next.password) || !validConfig(next)) {
+            Serial.println(F("ZIGATE-WIFI/1 ERROR INVALID"));
+            return;
+        }
+        saveUsbWifi(next);
+    }
+}
+
+void serviceUsbSerial() {
+    static char line[224];
+    static size_t length = 0;
+    static bool overflow = false;
+    for (size_t read = 0; read < sizeof(line) && Serial.available(); ++read) {
+        const int byte = Serial.read();
+        if (byte < 0) break;
+        if (byte == '\n' || byte == '\r') {
+            if (!overflow && length > 0) {
+                line[length] = '\0';
+                handleUsbLine(line);
+            }
+            memset(line, 0, length);
+            overflow = false;
+            length = 0;
+        } else if (!overflow) {
+            if (byte < ' ' || byte > '~' || length == sizeof(line) - 1) {
+                overflow = true;
+            } else {
+                line[length++] = static_cast<char>(byte);
+            }
+        }
+    }
 }
 
 void serviceWifi() {
@@ -262,7 +408,7 @@ void serviceWifi() {
         if (bridgeOnline && address != bridgeAddress) {
             stopBridge();
         }
-        if (!bridgeOnline && now - lastListenAttempt >= kListenRetryMs) {
+        if (!bridgeOnline && !usbSetupActive && now - lastListenAttempt >= kListenRetryMs) {
             startBridge(address);
         }
         return;
@@ -270,11 +416,12 @@ void serviceWifi() {
 
     if (bridgeOnline) {
         stopBridge();
+        Serial.println(F("Wi-Fi déconnecté. Reconnexion en cours."));
         offlineSince = now;
         lastReconnectAttempt = now;
     }
     if (configured && !radioFault && now - lastReconnectAttempt >= kReconnectMs) {
-        setupSTAWifi();
+        setupSTAWifi(wifiConfig);
         lastReconnectAttempt = now;
     }
     const bool needSetup = !configured || radioFault || now - offlineSince >= kSetupAfterMs;
@@ -320,6 +467,7 @@ void serviceBridge() {
 }  // namespace
 
 void setup() {
+    pinMode(kSetupButtonPin, INPUT_PULLUP);
     Serial.setRxBufferSize(kUartBuffer);
     Serial.begin(kBaud, SERIAL_8N1);
     if (!Serial || Serial.getRxBufferSize() < kUartBuffer) {
@@ -352,7 +500,7 @@ void setup() {
     offlineSince = millis();
     lastReconnectAttempt = offlineSince;
     if (configured && !radioFault) {
-        setupSTAWifi();
+        setupSTAWifi(wifiConfig);
     } else {
         setupWifiAP();
     }
@@ -364,6 +512,10 @@ void loop() {
             ESP.restart();
         }
     } else {
+        serviceSetupButton();
+        if (!bridgeOnline) {
+            serviceUsbSerial();
+        }
         serviceWifi();
         if (bridgeOnline) {
             serviceBridge();

@@ -1,10 +1,10 @@
 # ZiGate Wi‑Fi v1.3 pour Zigbee2MQTT
 
-Version d’essai 1.0.0 pour la ZiGate équipée du module Zigbee Meshreen **MS5168‑M05 (NXP JN5168)** et du module Wi‑Fi **ESP8266 / ESP‑12F**. Les deux binaires ont été compilés pour ces cibles. Le flash et l’appairage restent à vérifier sur la carte physique.
+Version d’essai 1.1.0 pour la ZiGate équipée du module Zigbee Meshreen **MS5168‑M05 (NXP JN5168)** et du module Wi‑Fi **ESP8266 / ESP‑12F**. La configuration Wi-Fi par USB a été testée en simulation et reste à valider sur la carte physique.
 
 | Fichier | Carte à programmer | Base |
 | --- | --- | --- |
-| `firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.0.0.bin` | Carte Wi‑Fi portant le module `ESP8266MOD` | Schéma et fonctionnement du firmware Wi‑Fi ZiGate v1.3 |
+| `firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin` | Carte Wi‑Fi portant le module `ESP8266MOD` | Schéma et fonctionnement du firmware Wi‑Fi ZiGate v1.3 |
 | `firmwares/ZiGate-Radio-JN5168-v3.23-OPDM-Z2M.bin` | Carte radio portant l’étiquette `MS5168-M05` | Firmware radio ZiGate v3.23 OPDM |
 
 Le firmware Wi‑Fi transmet les trames ZiGate sur TCP `9999` et utilise l’UART à `115200` bauds sur GPIO15 TX / GPIO13 RX. Il retente le Wi‑Fi en arrière-plan, limite le pont à un client et conserve les octets en cas d’écriture partielle. Le firmware radio rejette les trames tronquées, accepte l’encodage de `0x10` employé par le pilote Zigbee2MQTT et reconnaît son format de configuration de la clé réseau lors de la formation d’un réseau neuf.
@@ -23,12 +23,14 @@ Le firmware Wi‑Fi transmet les trames ZiGate sur TCP `9999` et utilise l’UAR
 
    ```sh
    python -m esptool --chip esp8266 --port PORT_WIFI --baud 115200 read_flash 0x0 0x400000 sauvegarde-esp8266.bin
-   python -m esptool --chip esp8266 --port PORT_WIFI --baud 115200 write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x0 firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.0.0.bin
+   python -m esptool --chip esp8266 --port PORT_WIFI --baud 115200 write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x0 firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin
    ```
 
-4. Débranche et rebranche la carte Wi‑Fi en mode normal. Sur la [page de flash](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi), clique sur **Lire la clé Wi-Fi en USB**. Tu peux aussi lire le port USB dans un terminal série à **115200, 8N1, sans contrôle de flux**. La carte affiche le SSID `ZIGATE-…` et une clé WPA2 aléatoire toutes les cinq secondes tant que le mode de configuration est actif. Utilise cette clé pour rejoindre `ZIGATE-…`, puis ouvre `http://192.168.4.1/`. Saisis le réseau **2,4 GHz de ta box** et son mot de passe. Laisse les champs d’adresse vides pour le DHCP. Le pont devient disponible à l’adresse attribuée par ton routeur.
+4. Débranche et rebranche la carte Wi‑Fi seule, bouton relâché. Une fois la carte alimentée, maintiens le bouton 2 secondes, puis relâche-le. Saisis le Wi-Fi 2,4 GHz de ta box dans [le formulaire USB](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi), clique sur **Enregistrer le Wi-Fi** et choisis le port USB. La carte enregistre les identifiants quand la connexion aboutit et la page affiche l’adresse attribuée par la box. Reprends cette étape pour changer de réseau.
 
-Après une coupure Wi‑Fi prolongée, le point d’accès de configuration revient. L’interface sert à configurer le Wi‑Fi. Les mises à jour de cette version se font via USB.
+### Configuration via le point d’accès
+
+Après environ 45 secondes sans connexion à un réseau enregistré, le point d’accès `ZIGATE-…` revient. Une carte sans réseau enregistré le crée au démarrage. Dans [l’aide Wi-Fi](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi-ap), clique sur **Lire la clé Wi-Fi en USB**. Un terminal série à **115200, 8N1, sans contrôle de flux** peut aussi lire le nom du point d’accès et sa clé WPA2, affichés toutes les cinq secondes. Rejoins ce réseau, puis ouvre `http://192.168.4.1/`. Saisis le Wi-Fi 2,4 GHz de ta box et son mot de passe. Laisse les champs d’adresse vides pour le DHCP ou renseigne les trois champs pour une adresse fixe.
 
 ## 2. Programmer le module radio
 

@@ -1,19 +1,19 @@
 import {connectRadio, resetRadioNetwork} from "./radio.js?v=3";
-import {readWifiSetup, validIpv4} from "./wifi-setup.js";
+import {configureWifi, readWifiSetup, validIpv4, wifiInputErrors} from "./wifi-setup.js?v=2";
 
 const releases = {
     wifi: {
         title: "Branche le module Wi-Fi seul",
         instructions: [
             "Débranche la ZiGate et sépare la carte Wi-Fi de la radio.",
-            "Maintiens le bouton près des broches en branchant l’USB, puis relâche-le.",
+            "Pour flasher, maintiens le bouton près des broches en branchant l’USB, puis relâche-le.",
         ],
-        version: "Wi-Fi 1.0.0",
-        file: "ZiGate-WiFi-v1.3-Z2M-ESP8266-1.0.0.bin",
-        sha256: "ecb044e24f07aecc997b9ace7ef7f6659fd9a7326f34e38919d2d2bd0b8ce72a",
+        version: "Wi-Fi 1.1.0",
+        file: "ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin",
+        sha256: "5c9f52648965c7dafcac26409c7b8b511b127d245f6a2ef58889fe74b1d62fda",
         backup: "sauvegarde-ZiGate-ESP8266.bin",
         installText: "Le firmware Wi-Fi va être remplacé. Garde le module branché jusqu’à la fin de la vérification.",
-        next: "Le module Wi-Fi est prêt. Débranche-le et passe au flash de la radio.",
+        next: "Firmware Wi-Fi installé. Rebranche le module pour le configurer ci-dessous.",
     },
     radio: {
         title: "Branche le JN5168 sur son adaptateur USB-TTL",
@@ -38,6 +38,10 @@ const install = byId("install");
 const disconnect = byId("disconnect");
 const reset = byId("reset");
 const wifiSetup = byId("wifi-setup");
+const wifiForm = byId("wifi-form");
+const wifiSsid = byId("wifi-ssid");
+const wifiPassword = byId("wifi-password");
+const wifiSave = byId("wifi-save");
 const post = byId("post-install");
 const dialog = byId("confirm-dialog");
 const available = window.isSecureContext && "serial" in navigator;
@@ -62,6 +66,9 @@ function updateControls() {
     }
     reset.disabled = busy || !available || Boolean(connection);
     wifiSetup.disabled = busy || !available || Boolean(connection);
+    for (const field of [wifiSsid, wifiPassword, wifiSave]) {
+        field.disabled = busy || !available || Boolean(connection);
+    }
 }
 
 function showNextStep() {
@@ -70,7 +77,7 @@ function showNextStep() {
     post.hidden = !done;
     byId("next-controls").hidden = !done;
     byId("next-radio").hidden = target !== "wifi";
-    byId("next-wifi").hidden = target !== "radio";
+    byId("next-montage").hidden = target !== "radio";
     byId("reset-section").hidden = target !== "radio";
 }
 
@@ -85,6 +92,7 @@ function showTarget() {
     byId("firmware-version").textContent = release.version;
     byId("firmware-download").href = `./firmwares/${release.file}`;
     byId("radio-port-help").hidden = target !== "radio";
+    byId("wifi").hidden = target !== "wifi";
     showNextStep();
     status(byId("status"), "");
 }
@@ -240,6 +248,7 @@ const ipFeedback = byId("ip-feedback");
 const ipValue = byId("zigate-ip-value");
 const copyIp = byId("copy-ip");
 const exampleIp = "192.168.1.50";
+const ipHint = ipFeedback.textContent;
 
 function updateAddress() {
     const value = ipInput.value.trim();
@@ -249,7 +258,7 @@ function updateAddress() {
     ipInput.setAttribute("aria-invalid", String(invalid));
     ipFeedback.textContent = invalid
         ? "Entre une adresse IPv4, par exemple 192.168.1.50."
-        : "Utilise l’adresse locale trouvée à l’étape 3.";
+        : ipHint;
     ipValue.textContent = valid ? value : "À renseigner";
     copyIp.disabled = !valid;
     byId("copy").disabled = invalid;
@@ -262,7 +271,52 @@ serial:
   port: ${port}`;
 }
 
+function showZigateAddress(ip) {
+    ipInput.value = ip;
+    updateAddress();
+}
+
 ipInput.addEventListener("input", updateAddress);
+for (const field of [wifiSsid, wifiPassword]) {
+    field.addEventListener("input", () => field.setCustomValidity(""));
+}
+
+function showLinkedWifi() {
+    if (window.location.hash === "#wifi-ap") byId("wifi-ap").open = true;
+    if (window.location.hash === "#wifi" && target !== "wifi" && !busy && !connection) {
+        targets.querySelector('input[value="wifi"]').checked = true;
+        target = "wifi";
+        showTarget();
+        byId("wifi").scrollIntoView();
+    }
+}
+window.addEventListener("hashchange", showLinkedWifi);
+showLinkedWifi();
+
+wifiForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const ssid = wifiSsid.value;
+    const password = wifiPassword.value;
+    const errors = wifiInputErrors(ssid, password);
+    wifiSsid.setCustomValidity(errors.ssid);
+    wifiPassword.setCustomValidity(errors.password);
+    if (!wifiForm.reportValidity()) return;
+
+    void run(byId("wifi-usb-status"), async () => {
+        const output = byId("wifi-usb-status");
+        status(output, "Sélectionne le port USB du module Wi-Fi.");
+        const port = await navigator.serial.requestPort();
+        status(output, "Vérification du firmware Wi-Fi…");
+        const ip = await configureWifi(port, ssid, password, () => {
+            status(output, "Connexion au Wi-Fi… Attends jusqu’à 30 secondes.");
+        });
+        wifiPassword.value = "";
+        showZigateAddress(ip);
+        byId("wifi-next-ha").hidden = false;
+        status(output, `Wi-Fi enregistré. La ZiGate est connectée à l’adresse ${ip}.`, "ok");
+    });
+});
+
 wifiSetup.addEventListener("click", () => run(byId("wifi-status"), async () => {
     const output = byId("wifi-status");
     byId("wifi-credentials").hidden = true;
@@ -273,8 +327,7 @@ wifiSetup.addEventListener("click", () => run(byId("wifi-status"), async () => {
     status(output, "Lecture du module Wi-Fi…");
     const result = await readWifiSetup(port);
     if (result.ip) {
-        ipInput.value = result.ip;
-        updateAddress();
+        showZigateAddress(result.ip);
         status(output, `ZiGate connectée à l’adresse ${result.ip}. Tu peux copier cette adresse à l’étape 4.`, "ok");
     } else {
         byId("setup-ssid").textContent = result.ssid;
@@ -295,8 +348,9 @@ if (available) {
     });
 } else {
     const notice = byId("browser-notice");
-    notice.textContent = "Le flash USB demande Chrome ou Edge sur ordinateur et une page ouverte en HTTPS ou sur localhost. Les fichiers .bin restent téléchargeables.";
+    notice.textContent = "Le flash et la configuration USB demandent Chrome ou Edge sur ordinateur et une page ouverte en HTTPS ou sur localhost. Les fichiers .bin restent téléchargeables.";
     notice.hidden = false;
+    byId("wifi-form-note").textContent = "Ouvre cette page dans Chrome ou Edge sur ordinateur pour utiliser l’USB.";
 }
 
 function bindCopy(button, source) {

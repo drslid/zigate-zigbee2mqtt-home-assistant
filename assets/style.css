@@ -139,9 +139,15 @@ progress { width: 100%; height: 10px; accent-color: #3e7650; }
 .reset-body p { margin-bottom: 9px; }
 .reset-body .status { margin-bottom: 0; }
 .wifi-setup-button { display: flex; margin-top: 8px; }
+.wifi-form-panel { margin-top: 22px; padding: clamp(16px, 3vw, 23px); border: 1px solid var(--line); border-radius: 12px; background: #f3f7f4; }
+.wifi-form-panel h3 { margin: 0; font-size: 19px; line-height: 1.3; }
+.wifi-form-panel .short-steps { margin-block: 8px 15px; font-size: 14px; }
+.wifi-form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; margin-bottom: 8px; }
+.wifi-form-panel .config-example > .field-hint { margin: 8px 0 0; }
 .step-wifi .short-steps .field-hint { font-size: 13px; margin: 6px 0 8px; }
 .step-wifi .short-steps .status { margin: 8px 0 0; }
 .driver-help { color: var(--muted); font-size: 14px; margin: 0; }
+.step-wifi > .driver-help { margin-top: 12px; }
 .wifi-credentials { display: flex; flex-wrap: wrap; align-items: center; gap: 9px 22px; padding: 13px; background: var(--soft); margin-top: 12px; border-radius: 10px; }
 .wifi-credentials dl { display: flex; flex-wrap: wrap; gap: 9px 22px; margin: 0; }
 .wifi-credentials dt { font-size: 12px; color: var(--muted); }
@@ -163,6 +169,7 @@ dialog p { margin: 12px 0 19px; color: var(--muted); line-height: 1.5; }
   .module-label { min-height: 108px; gap: 2px; padding: 8px; }
   .chip-art { width: 52px; height: 35px; }
   .lower-panel { grid-template-columns: 1fr; gap: 15px; }
+  .wifi-form-fields { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 440px) {

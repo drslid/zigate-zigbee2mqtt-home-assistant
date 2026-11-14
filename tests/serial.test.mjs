@@ -4,11 +4,11 @@ import {readFile} from "node:fs/promises";
 import test from "node:test";
 import {ESPLoader, Transport} from "../assets/esp-tools.js";
 import {connectRadio, resetRadioNetwork} from "../radio.js";
-import {parseWifiLine, readWifiSetup, validIpv4} from "../wifi-setup.js";
+import {configureWifi, parseWifiLine, readWifiSetup, validIpv4, wifiInputErrors} from "../wifi-setup.js";
 import {connectWifi} from "../wifi.js";
 
 const radioImage = new Uint8Array(await readFile(new URL("../firmwares/ZiGate-Radio-JN5168-v3.23-OPDM-Z2M.bin", import.meta.url)));
-const wifiImage = new Uint8Array(await readFile(new URL("../firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.0.0.bin", import.meta.url)));
+const wifiImage = new Uint8Array(await readFile(new URL("../firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin", import.meta.url)));
 const noop = () => {};
 
 function serialPort(onWrite, onOpen = noop) {
@@ -250,4 +250,37 @@ test("Wi-Fi setup reads the actual firmware log format across USB packets", asyn
     assert.deepEqual(parseWifiLine("ZiGate Wi-Fi Z2M 1.0.0 | IP : 192.168.1.77"), {ip: "192.168.1.77"});
     for (const value of ["0.0.0.0", "192.168.01.2", "192.168.0.256", "192.168.1.4:9999"]) assert.equal(validIpv4(value), false);
     assert.equal(port.readable, undefined);
+});
+
+test("USB Wi-Fi setup waits for the firmware and returns the confirmed IP", async () => {
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    const commands = [];
+    const port = serialPort((bytes, send) => {
+        commands.push(decoder.decode(bytes));
+        if (commands.length === 1) {
+            send(encoder.encode("\r\nZIGATE-WIFI/1 READY\r\n"));
+        } else {
+            send(encoder.encode("ZIGATE-WIFI/1 OK 192.168.1.77\r\n"));
+        }
+    }, (baudRate) => assert.equal(baudRate, 115200));
+    assert.equal(await configureWifi(port, "Réseau été", " abc:def ", () => assert.equal(commands.length, 1)), "192.168.1.77");
+    assert.deepEqual(commands, ["\nZIGATE-WIFI/1 HELLO\n", "ZIGATE-WIFI/1 SET 52c3a97365617520c3a974c3a9 206162633a64656620\n"]);
+    assert.equal(port.readable, undefined);
+});
+
+test("USB Wi-Fi setup reports a rejected connection and releases the port", async () => {
+    const encoder = new TextEncoder();
+    const port = serialPort((bytes, send) => {
+        const command = new TextDecoder().decode(bytes);
+        const reply = command.includes("HELLO") ? "READY" : "ERROR CONNECT";
+        send(encoder.encode(`ZIGATE-WIFI/1 ${reply}\r\n`));
+    });
+    await assert.rejects(configureWifi(port, "Réseau", "motdepasse", noop), /réglages précédents sont conservés/);
+    assert.equal(port.readable, undefined);
+    assert.equal(wifiInputErrors("é".repeat(16), "").ssid, "");
+    assert.notEqual(wifiInputErrors("é".repeat(17), "").ssid, "");
+    assert.notEqual(wifiInputErrors("Réseau", "invalid").password, "");
+    assert.equal(wifiInputErrors("Réseau", "f".repeat(64)).password, "");
+    assert.notEqual(wifiInputErrors("Réseau", "g".repeat(64)).password, "");
 });
