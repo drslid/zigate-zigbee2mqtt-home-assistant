@@ -6,8 +6,8 @@
   <meta name="description" content="Flashe et configure le Wi-Fi de ta ZiGate v1.3 en USB depuis Chrome ou Edge, puis ajoute-la à Home Assistant.">
   <meta name="theme-color" content="#f5f7f3">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./assets/style.css?v=7">
-  <script type="module" src="./app.js?v=7"></script>
+  <link rel="stylesheet" href="./assets/style.css?v=8">
+  <script type="module" src="./app.js?v=8"></script>
   <title>Mise à jour ZiGate Wi-Fi v1.3</title>
 </head>
 <body>
@@ -17,7 +17,10 @@
         <img src="./assets/icon.svg" alt="" width="34" height="34">
         <span><strong>ZiGate</strong><small>Zigbee2MQTT</small></span>
       </a>
-      <a class="header-link" href="#configuration">Configurer Home Assistant <span aria-hidden="true">↘</span></a>
+      <nav class="header-nav" aria-label="Accès rapide">
+        <a class="header-link" href="#wifi">Configurer le Wi-Fi <span aria-hidden="true">↘</span></a>
+        <a class="header-link" href="#configuration">Configurer Home Assistant <span aria-hidden="true">↘</span></a>
+      </nav>
     </div>
   </header>
 
@@ -43,7 +46,7 @@
           <span class="target-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><path d="M3 9a14 14 0 0 1 18 0M6 12.5a9.5 9.5 0 0 1 12 0m-9 3.6a5 5 0 0 1 6 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="19" r="1.15" fill="currentColor"/></svg>
           </span>
-          <span class="target-text"><strong>1. Prépare le Wi-Fi</strong><small>ESP8266 · 4 Mo</small></span>
+          <span class="target-text"><strong>1a. Flashe le Wi-Fi</strong><small>ESP8266 · 4 Mo</small></span>
           <span class="target-select" aria-hidden="true"></span>
         </label>
         <label class="target">
@@ -71,7 +74,7 @@
             <li>Pour flasher, maintiens le bouton près des broches en branchant l’USB, puis relâche-le.</li>
           </ol>
         </div>
-        <p class="firmware-tag" id="firmware-version">Wi-Fi 1.1.0</p>
+        <p class="firmware-tag" id="firmware-version">Wi-Fi 1.1.1</p>
       </div>
 
       <div class="controls">
@@ -79,7 +82,7 @@
         <button id="backup" class="button secondary" type="button" hidden>Sauvegarder</button>
         <button id="install" class="button primary" type="button" hidden>Installer le firmware <span aria-hidden="true">↗</span></button>
         <button id="disconnect" class="button secondary" type="button" hidden>Déconnecter</button>
-        <a class="download-link" id="firmware-download" href="./firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin" download>Télécharger le .bin <span aria-hidden="true">↓</span></a>
+        <a class="download-link" id="firmware-download" href="./firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin" download>Télécharger le .bin <span aria-hidden="true">↓</span></a>
       </div>
       <p id="status" class="status" role="status" aria-live="polite" hidden></p>
       <div id="progress-area" class="progress-area" hidden>
@@ -87,12 +90,16 @@
         <progress id="progress" aria-labelledby="progress-caption" max="100"></progress>
       </div>
       <p class="post-install" id="post-install" hidden></p>
+      <div class="controls next-controls" id="next-controls" hidden>
+        <a id="next-wifi" class="button primary" href="#wifi" hidden>Configurer le Wi-Fi <span aria-hidden="true">→</span></a>
+        <a id="next-montage" class="button primary" href="#montage" hidden>Remonter la ZiGate <span aria-hidden="true">→</span></a>
+      </div>
       <section id="wifi" class="wifi-form-panel" aria-labelledby="wifi-title">
-        <h3 id="wifi-title">Configure le Wi-Fi par USB</h3>
-        <p class="field-hint">Installe le firmware Wi-Fi <strong>1.1.0</strong> ci-dessus pour activer le formulaire USB.</p>
+        <h3 id="wifi-title">1b. Configure le Wi-Fi par USB</h3>
+        <p class="field-hint">Après l’installation du firmware Wi-Fi <strong>1.1.1</strong>, utilise ce formulaire pour ta première connexion ou pour changer de réseau.</p>
         <ol class="short-steps">
-          <li>Rebranche le module Wi-Fi <strong>seul et bouton relâché</strong>.</li>
-          <li>Pour changer un Wi-Fi déjà enregistré, maintiens le bouton <strong>2 secondes après le branchement</strong>, puis relâche-le.</li>
+          <li>Branche le module Wi-Fi <strong>seul, bouton relâché</strong>.</li>
+          <li>Si <strong>Zigbee2MQTT ZiGate</strong> est démarré dans Home Assistant, arrête cette application le temps du réglage.</li>
           <li>Saisis le Wi-Fi <strong>2,4 GHz</strong> de ta box, clique sur <strong>Enregistrer le Wi-Fi</strong>, puis choisis le port USB du module.</li>
         </ol>
         <form class="config-example" id="wifi-form" autocomplete="off" aria-describedby="wifi-form-note">
@@ -109,16 +116,14 @@
           </div>
           <div class="controls">
             <button id="wifi-save" class="button primary" type="submit" disabled>Enregistrer le Wi-Fi</button>
+            <button id="next-radio" class="button secondary" type="button" hidden>Passer à la radio <span aria-hidden="true">→</span></button>
             <a id="wifi-next-ha" class="button secondary" href="#configuration" hidden>Adresse IP pour Home Assistant <span aria-hidden="true">→</span></a>
           </div>
           <p class="field-hint" id="wifi-form-note">Le mot de passe est transmis au module par USB.</p>
         </form>
         <p id="wifi-usb-status" class="status" role="status" aria-live="polite" hidden></p>
+        <p class="field-hint wifi-fallback"><a href="#wifi-ap">Configurer via le point d’accès ZiGate</a></p>
       </section>
-      <div class="controls next-controls" id="next-controls" hidden>
-        <button id="next-radio" class="button primary" type="button" hidden>Passer à la radio <span aria-hidden="true">→</span></button>
-        <a id="next-montage" class="button primary" href="#montage" hidden>Remonter la ZiGate <span aria-hidden="true">→</span></a>
-      </div>
       <details class="help-panel" id="radio-port-help" hidden>
         <summary>Le port COM ne s’ouvre pas</summary>
         <ol class="short-steps">
@@ -154,7 +159,7 @@
       <details id="wifi-ap" class="help-panel">
         <summary>Configurer le Wi-Fi via le point d’accès de la ZiGate</summary>
         <ol class="short-steps">
-          <li>Branche la ZiGate en USB bouton relâché. Si elle connaît déjà un réseau, son point d’accès revient après environ 45 secondes sans connexion.</li>
+          <li>Branche le module Wi-Fi en USB, bouton relâché. Si l’ancien réseau est encore accessible, coupe-le temporairement. Le point d’accès apparaît après environ 45 secondes hors connexion.</li>
           <li>
             Lis le nom et la clé du point d’accès. Connecte ton ordinateur à ce réseau.
             <button id="wifi-setup" class="button secondary wifi-setup-button" type="button" disabled>Lire la clé Wi-Fi en USB</button>
@@ -233,7 +238,7 @@ serial:
   <footer class="shell footer">
     <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant">Dépôt GitHub <span aria-hidden="true">↗</span></a>
     <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant/blob/main/LISEZ-MOI.md">Guide de flash manuel <span aria-hidden="true">↗</span></a>
-    <a href="./ZiGate-v1.3-Zigbee2MQTT-1.1.0.zip" download>Télécharger le pack complet <span aria-hidden="true">↓</span></a>
+    <a href="./ZiGate-v1.3-Zigbee2MQTT-1.1.1.zip" download>Télécharger le pack complet <span aria-hidden="true">↓</span></a>
   </footer>
 
   <dialog id="confirm-dialog" aria-labelledby="confirm-title">

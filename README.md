@@ -16,13 +16,13 @@
 </p>
 
 > [!IMPORTANT]
-> Le firmware Wi-Fi 1.1.0 a été compilé pour l’ESP8266. La configuration Wi-Fi par USB a été testée en simulation et reste à valider sur la carte physique.
+> Le firmware Wi-Fi 1.1.1 a été compilé pour l’ESP8266. Le changement de Wi-Fi par USB a été testé en simulation et reste à valider sur la carte physique.
 
 ## Installation rapide
 
 Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d’un ordinateur avec **Chrome ou Edge**.
 
-1. Installe le firmware **Wi-Fi 1.1.0**, puis saisis le Wi-Fi 2,4 GHz de ta box dans [le formulaire USB de l’étape 1](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi). La page affiche l’adresse IP du module.
+1. Installe le firmware **Wi-Fi 1.1.1**, rebranche le module Wi-Fi seul, bouton relâché, puis saisis le Wi-Fi 2,4 GHz de ta box dans [le formulaire USB de l’étape 1b](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi). La page affiche l’adresse IP du module.
 2. Programme la **radio Zigbee** avec l’adaptateur USB‑TTL.
 3. Remonte la ZiGate et branche-la. Elle rejoint le Wi-Fi enregistré à l’étape 1.
 4. Installe **Zigbee2MQTT ZiGate** depuis la boutique Home Assistant et renseigne l’adresse IP de la passerelle dans **Configuration**.
@@ -34,7 +34,7 @@ Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d
 
 | Module | Matériel | Connexion | Firmware |
 | --- | --- | --- | --- |
-| Wi‑Fi | ESP8266 avec 4 Mo de flash | Prise USB de la carte Wi‑Fi | [Wi‑Fi 1.1.0](firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin) |
+| Wi‑Fi | ESP8266 avec 4 Mo de flash | Prise USB de la carte Wi‑Fi | [Wi‑Fi 1.1.1](firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin) |
 | Radio Zigbee | MS5168‑M05 avec JN5168 | Adaptateur USB‑TTL ZiGate du kit | [Radio 3.23 OPDM](firmwares/ZiGate-Radio-JN5168-v3.23-OPDM-Z2M.bin) |
 
 1. Ouvre la page en HTTPS. Débranche la ZiGate, sépare les cartes et choisis le module à programmer.
@@ -42,13 +42,13 @@ Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d
 3. Pour partir d’un réseau Zigbee neuf, garde la carte radio sur l’USB‑TTL après le flash. Rebranche-la sans maintenir son bouton, puis utilise **Effacer l’ancien réseau Zigbee** sur la page. Cela efface les anciens appairages.
 4. Une fois les deux cartes préparées, débranche-les, remonte la ZiGate et branche-la bouton relâché.
 
-Le [guide complet](LISEZ-MOI.md) décrit aussi le flash avec les outils en ligne de commande. Le [pack ZIP](ZiGate-v1.3-Zigbee2MQTT-1.1.0.zip) contient les binaires, les sources et leurs empreintes. Les sauvegardes réalisées depuis la page restent sur l’ordinateur.
+Le [guide complet](LISEZ-MOI.md) décrit aussi le flash avec les outils en ligne de commande. Le [pack ZIP](ZiGate-v1.3-Zigbee2MQTT-1.1.1.zip) contient les binaires, les sources et leurs empreintes. Les sauvegardes réalisées depuis la page restent sur l’ordinateur.
 
 ### Changer de Wi-Fi
 
-Débranche la ZiGate, sépare le module Wi-Fi et rebranche ce module seul avec le bouton relâché. Une fois la carte alimentée, maintiens son bouton 2 secondes, puis relâche-le. Saisis le nouveau réseau dans [le formulaire USB](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi). La carte enregistre les identifiants après avoir obtenu une adresse IP. Si l’adresse change, mets-la à jour dans **Zigbee2MQTT ZiGate → Configuration** et redémarre cette application.
+Avec le firmware 1.1.1, arrête l’application **Zigbee2MQTT ZiGate** si elle est démarrée, puis branche le module Wi-Fi seul, bouton relâché. Saisis le nouveau réseau dans [le formulaire USB de l’étape 1b](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi). La carte enregistre les identifiants après avoir obtenu une adresse IP. Remonte la ZiGate et mets à jour l’adresse dans **Zigbee2MQTT ZiGate → Configuration** si elle a changé. Démarre l’application.
 
-La méthode via [le point d’accès de la ZiGate](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi-ap) reste disponible avec les firmwares Wi-Fi 1.0.0 et 1.1.0.
+Les firmwares Wi-Fi 1.0.0, 1.1.0 et 1.1.1 proposent aussi [la configuration via le point d’accès de la ZiGate](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi-ap).
 
 ## Installation dans Home Assistant
 

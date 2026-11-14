@@ -17,11 +17,13 @@ constexpr uint32_t kSetupAfterMs = 45000;
 constexpr uint32_t kSetupNoticeMs = 5000;
 constexpr uint32_t kListenRetryMs = 1000;
 constexpr uint32_t kRestartDelayMs = 1500;
-constexpr uint32_t kSetupButtonHoldMs = 2000;
-constexpr uint32_t kUsbSetupWindowMs = 120000;
+constexpr uint32_t kUsbSetupWindowMs = 8000;
 constexpr uint32_t kUsbWifiConnectMs = 30000;
-constexpr uint8_t kSetupButtonPin = 0;
 constexpr size_t kUartBuffer = 2048;
+constexpr uint8_t kUsbTxPin = 1;
+constexpr uint8_t kUsbRxPin = 3;
+constexpr uint8_t kRadioTxPin = 15;
+constexpr uint8_t kRadioRxPin = 13;
 constexpr char kConfigPath[] = "/zigate-wifi-v1.cfg";
 constexpr char kTempConfigPath[] = "/zigate-wifi.tmp";
 const IPAddress kSetupAddress(192, 168, 4, 1);
@@ -62,10 +64,10 @@ bool storageReady = false;
 bool configured = false;
 bool setupActive = false;
 bool bridgeOnline = false;
+bool radioUartActive = false;
 bool radioFault = false;
 bool restartPending = false;
 bool usbSetupActive = false;
-bool buttonHandled = false;
 IPAddress bridgeAddress;
 uint32_t offlineSince = 0;
 uint32_t lastReconnectAttempt = 0;
@@ -73,7 +75,6 @@ uint32_t lastSetupAttempt = 0;
 uint32_t lastSetupNotice = 0;
 uint32_t lastListenAttempt = 0;
 uint32_t savedAt = 0;
-uint32_t buttonReleasedAt = 0;
 uint32_t usbSetupSince = 0;
 
 template <size_t Size>
@@ -218,10 +219,41 @@ void setupSTAWifi(const WifiConfig& config) {
     WiFi.begin(config.ssid, config.password);
 }
 
+void discardSerialInput() {
+    uint8_t discard[128];
+    size_t remaining = kUartBuffer + sizeof(discard);
+    while (remaining > 0 && Serial.available() > 0) {
+        const size_t count = std::min({remaining, sizeof(discard), static_cast<size_t>(Serial.available())});
+        const int read = Serial.read(discard, count);
+        if (read <= 0) break;
+        remaining -= static_cast<size_t>(read);
+    }
+    Serial.hasOverrun();
+    Serial.hasRxError();
+}
+
+bool selectRadioUart(bool enable) {
+    if (enable == radioUartActive) return true;
+    Serial.flush();
+    if (!Serial.pins(enable ? kRadioTxPin : kUsbTxPin, enable ? kRadioRxPin : kUsbRxPin)) {
+        radioFault = true;
+        if (!radioUartActive) Serial.println(F("Impossible d’activer l’UART du module radio."));
+        return false;
+    }
+    radioUartActive = enable;
+    // Hold the idle TX line high while UART0 is serving the other connector.
+    const uint8_t idleTx = enable ? kUsbTxPin : kRadioTxPin;
+    digitalWrite(idleTx, HIGH);
+    pinMode(idleTx, OUTPUT);
+    discardSerialInput();
+    return true;
+}
+
 void closeClient() {
     zigbeeClient = WiFiClient();
     toRadio.clear();
     toTcp.clear();
+    selectRadioUart(false);
 }
 
 void stopWifiAP() {
@@ -236,23 +268,16 @@ void stopWifiAP() {
 void startBridge(const IPAddress& address) {
     lastListenAttempt = millis();
     stopWifiAP();
-    Serial.print(F("ZiGate Wi-Fi Z2M 1.1.0 | IP : "));
-    Serial.println(address);
-    Serial.flush();
-    if (!Serial.pins(15, 13)) {
-        radioFault = true;
-        Serial.println(F("Impossible d’activer l’UART du module radio."));
-        return;
-    }
     bridgeServer.setNoDelay(true);
     bridgeServer.begin(kBridgePort, 2);
     if (bridgeServer.status() != LISTEN) {
-        Serial.pins(1, 3);
         Serial.println(F("Port TCP 9999 indisponible."));
         return;
     }
     bridgeAddress = address;
     bridgeOnline = true;
+    Serial.print(F("ZiGate Wi-Fi Z2M 1.1.1 | IP : "));
+    Serial.println(address);
 }
 
 void stopBridge() {
@@ -261,8 +286,6 @@ void stopBridge() {
     while (bridgeServer.hasClient()) {
         bridgeServer.accept();
     }
-    Serial.flush();
-    Serial.pins(1, 3);
     bridgeOnline = false;
 }
 
@@ -272,20 +295,6 @@ void openUsbSetup() {
     }
     usbSetupActive = true;
     usbSetupSince = millis();
-}
-
-void serviceSetupButton() {
-    const uint32_t now = millis();
-    if (usbSetupActive && now - usbSetupSince >= kUsbSetupWindowMs) {
-        usbSetupActive = false;
-    }
-    if (digitalRead(kSetupButtonPin) == HIGH) {
-        buttonReleasedAt = now;
-        buttonHandled = false;
-    } else if (!buttonHandled && now - buttonReleasedAt >= kSetupButtonHoldMs) {
-        buttonHandled = true;
-        openUsbSetup();
-    }
 }
 
 int hexDigit(char value) {
@@ -432,26 +441,13 @@ void serviceWifi() {
 
 void serviceBridge() {
     // After a hardware overrun, reconnect to give Zigbee2MQTT a clean byte stream.
-    const bool overrun = Serial.hasOverrun();
-    const bool rxError = Serial.hasRxError();
-    if (!zigbeeClient.connected() || overrun || rxError) {
+    if (radioUartActive && (!zigbeeClient.connected() || Serial.hasOverrun() || Serial.hasRxError())) {
         closeClient();
-        uint8_t discard[128];
-        // Discard data left by the previous client while no client owns the UART.
-        size_t remaining = kUartBuffer + sizeof(discard);
-        while (remaining > 0 && Serial.available() > 0) {
-            const size_t count = std::min({remaining, sizeof(discard), static_cast<size_t>(Serial.available())});
-            const int read = Serial.read(discard, count);
-            if (read <= 0) {
-                break;
-            }
-            remaining -= static_cast<size_t>(read);
-        }
     }
 
     if (bridgeServer.hasClient()) {
         WiFiClient incoming = bridgeServer.accept();
-        if (incoming.connected() && !zigbeeClient.connected()) {
+        if (incoming.connected() && !radioUartActive && !radioFault && selectRadioUart(true)) {
             zigbeeClient = incoming;
             zigbeeClient.keepAlive(15, 5, 3);
             zigbeeClient.setTimeout(10);
@@ -467,12 +463,13 @@ void serviceBridge() {
 }  // namespace
 
 void setup() {
-    pinMode(kSetupButtonPin, INPUT_PULLUP);
     Serial.setRxBufferSize(kUartBuffer);
     Serial.begin(kBaud, SERIAL_8N1);
     if (!Serial || Serial.getRxBufferSize() < kUartBuffer) {
         radioFault = true;
     }
+    digitalWrite(kRadioTxPin, HIGH);
+    pinMode(kRadioTxPin, OUTPUT);
     Serial.setDebugOutput(false);
     WiFi.persistent(false);
     WiFi.mode(WIFI_OFF);
@@ -512,8 +509,11 @@ void loop() {
             ESP.restart();
         }
     } else {
-        serviceSetupButton();
-        if (!bridgeOnline) {
+        if (usbSetupActive && millis() - usbSetupSince >= kUsbSetupWindowMs) {
+            usbSetupActive = false;
+        }
+        // The ESP8266 UART is connected to USB until a TCP client takes the radio.
+        if (!radioUartActive) {
             serviceUsbSerial();
         }
         serviceWifi();

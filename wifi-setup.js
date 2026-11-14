@@ -1,7 +1,7 @@
 import {openSerial} from "./serial.js";
 
 const baudRate = 115200;
-const usbTimeout = 35000;
+const usbTimeout = 42000;
 const setupSignature = "ZIGATE-WIFI/1";
 const encoder = new TextEncoder();
 
@@ -60,21 +60,35 @@ function hexWifiField(value) {
     return Array.from(encoder.encode(value), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+async function waitForWifiModule(serial) {
+    const hello = encoder.encode(`\n${setupSignature} HELLO\n`);
+    for (let attempt = 0; attempt < 3; attempt++) {
+        await serial.write(hello);
+        try {
+            await readWifiResult(serial, 1200, (line) => line === `${setupSignature} READY`);
+            return;
+        } catch (error) {
+            if (error.name !== "TimeoutError") throw error;
+        }
+    }
+    throw new Error("Le port USB est ouvert, mais le module Wi-Fi ne répond pas. Vérifie que le firmware 1.1.1 est installé et rebranche le module bouton relâché. Si Zigbee2MQTT ZiGate est démarré, arrête cette application et réessaie.");
+}
+
 export async function configureWifi(port, ssid, password, onConnect) {
     const errors = wifiInputErrors(ssid, password);
     if (errors.ssid || errors.password) throw new Error(errors.ssid || errors.password);
     const serial = await openSerial(port, baudRate);
     try {
         // Identify the ZiGate firmware before sending any credentials to the selected port.
-        await serial.write(encoder.encode(`\n${setupSignature} HELLO\n`));
-        await readWifiResult(serial, 3500, (line) => line === `${setupSignature} READY`).catch((error) => {
-            if (error.name !== "TimeoutError") throw error;
-            throw new Error("Le module ne répond pas. Vérifie le port USB et le firmware Wi-Fi 1.1.0. S’il est déjà connecté au Wi-Fi, maintiens son bouton 2 secondes pendant qu’il est branché, puis réessaie.");
-        });
+        await waitForWifiModule(serial);
 
         onConnect();
         await serial.write(encoder.encode(`${setupSignature} SET ${hexWifiField(ssid)} ${hexWifiField(password)}\n`));
-        const response = await readWifiResult(serial, usbTimeout, (line) => line.startsWith(`${setupSignature} `) && line.slice(setupSignature.length + 1));
+        const response = await readWifiResult(serial, usbTimeout, (line) => {
+            if (line.startsWith(`${setupSignature} OK `) || line.startsWith(`${setupSignature} ERROR `)) {
+                return line.slice(setupSignature.length + 1);
+            }
+        });
         if (response.startsWith("OK ") && validIpv4(response.slice(3))) return response.slice(3);
         const messages = {
             "ERROR CONNECT": "Connexion Wi-Fi impossible. Vérifie le nom et le mot de passe du réseau 2,4 GHz, puis réessaie. Les réglages précédents sont conservés.",

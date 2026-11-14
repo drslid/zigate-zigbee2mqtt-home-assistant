@@ -1,5 +1,5 @@
 import {connectRadio, resetRadioNetwork} from "./radio.js?v=3";
-import {configureWifi, readWifiSetup, validIpv4, wifiInputErrors} from "./wifi-setup.js?v=2";
+import {configureWifi, readWifiSetup, validIpv4, wifiInputErrors} from "./wifi-setup.js?v=3";
 
 const releases = {
     wifi: {
@@ -8,12 +8,12 @@ const releases = {
             "Débranche la ZiGate et sépare la carte Wi-Fi de la radio.",
             "Pour flasher, maintiens le bouton près des broches en branchant l’USB, puis relâche-le.",
         ],
-        version: "Wi-Fi 1.1.0",
-        file: "ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin",
-        sha256: "5c9f52648965c7dafcac26409c7b8b511b127d245f6a2ef58889fe74b1d62fda",
+        version: "Wi-Fi 1.1.1",
+        file: "ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin",
+        sha256: "59d2c4a152af4257041bd724959994563e6a401ea095a31434891d0b11034409",
         backup: "sauvegarde-ZiGate-ESP8266.bin",
         installText: "Le firmware Wi-Fi va être remplacé. Garde le module branché jusqu’à la fin de la vérification.",
-        next: "Firmware Wi-Fi installé. Rebranche le module pour le configurer ci-dessous.",
+        next: "Firmware Wi-Fi installé. Rebranche le module bouton relâché, puis configure le Wi-Fi.",
     },
     radio: {
         title: "Branche le JN5168 sur son adaptateur USB-TTL",
@@ -42,6 +42,7 @@ const wifiForm = byId("wifi-form");
 const wifiSsid = byId("wifi-ssid");
 const wifiPassword = byId("wifi-password");
 const wifiSave = byId("wifi-save");
+const nextRadio = byId("next-radio");
 const post = byId("post-install");
 const dialog = byId("confirm-dialog");
 const available = window.isSecureContext && "serial" in navigator;
@@ -66,7 +67,7 @@ function updateControls() {
     }
     reset.disabled = busy || !available || Boolean(connection);
     wifiSetup.disabled = busy || !available || Boolean(connection);
-    for (const field of [wifiSsid, wifiPassword, wifiSave]) {
+    for (const field of [wifiSsid, wifiPassword, wifiSave, nextRadio]) {
         field.disabled = busy || !available || Boolean(connection);
     }
 }
@@ -76,7 +77,7 @@ function showNextStep() {
     post.textContent = releases[target].next;
     post.hidden = !done;
     byId("next-controls").hidden = !done;
-    byId("next-radio").hidden = target !== "wifi";
+    byId("next-wifi").hidden = target !== "wifi";
     byId("next-montage").hidden = target !== "radio";
     byId("reset-section").hidden = target !== "radio";
 }
@@ -179,12 +180,13 @@ targets.addEventListener("change", (event) => {
     showTarget();
 });
 
-byId("next-radio").addEventListener("click", () => {
+nextRadio.addEventListener("click", () => {
     const radio = targets.querySelector('input[value="radio"]');
     radio.checked = true;
     target = "radio";
     showTarget();
-    radio.focus();
+    radio.focus({preventScroll: true});
+    byId("flash").scrollIntoView();
 });
 
 connect.addEventListener("click", () => run(byId("status"), async () => {
@@ -312,6 +314,7 @@ wifiForm.addEventListener("submit", (event) => {
         });
         wifiPassword.value = "";
         showZigateAddress(ip);
+        nextRadio.hidden = !installed.has("wifi") || installed.has("radio");
         byId("wifi-next-ha").hidden = false;
         status(output, `Wi-Fi enregistré. La ZiGate est connectée à l’adresse ${ip}.`, "ok");
     });

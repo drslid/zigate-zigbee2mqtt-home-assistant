@@ -8,7 +8,7 @@ import {configureWifi, parseWifiLine, readWifiSetup, validIpv4, wifiInputErrors}
 import {connectWifi} from "../wifi.js";
 
 const radioImage = new Uint8Array(await readFile(new URL("../firmwares/ZiGate-Radio-JN5168-v3.23-OPDM-Z2M.bin", import.meta.url)));
-const wifiImage = new Uint8Array(await readFile(new URL("../firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin", import.meta.url)));
+const wifiImage = new Uint8Array(await readFile(new URL("../firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin", import.meta.url)));
 const noop = () => {};
 
 function serialPort(onWrite, onOpen = noop) {
@@ -261,11 +261,29 @@ test("USB Wi-Fi setup waits for the firmware and returns the confirmed IP", asyn
         if (commands.length === 1) {
             send(encoder.encode("\r\nZIGATE-WIFI/1 READY\r\n"));
         } else {
-            send(encoder.encode("ZIGATE-WIFI/1 OK 192.168.1.77\r\n"));
+            send(encoder.encode("ZIGATE-WIFI/1 READY\r\nZIGATE-WIFI/1 OK 192.168.1.77\r\n"));
         }
     }, (baudRate) => assert.equal(baudRate, 115200));
     assert.equal(await configureWifi(port, "Réseau été", " abc:def ", () => assert.equal(commands.length, 1)), "192.168.1.77");
     assert.deepEqual(commands, ["\nZIGATE-WIFI/1 HELLO\n", "ZIGATE-WIFI/1 SET 52c3a97365617520c3a974c3a9 206162633a64656620\n"]);
+    assert.equal(port.readable, undefined);
+});
+
+test("USB Wi-Fi setup retries a missed handshake before sending credentials", async () => {
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    let greeted = 0;
+    const port = serialPort((bytes, send) => {
+        const command = decoder.decode(bytes);
+        if (command.includes("HELLO")) {
+            if (++greeted === 2) send(encoder.encode("ZIGATE-WIFI/1 READY\r\n"));
+        } else {
+            assert.equal(greeted, 2);
+            assert.equal(command, "ZIGATE-WIFI/1 SET 426f78 \n");
+            send(encoder.encode("ZIGATE-WIFI/1 OK 192.168.1.77\r\n"));
+        }
+    });
+    assert.equal(await configureWifi(port, "Box", "", noop), "192.168.1.77");
     assert.equal(port.readable, undefined);
 });
 

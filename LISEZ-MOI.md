@@ -1,13 +1,13 @@
 # ZiGate Wi‑Fi v1.3 pour Zigbee2MQTT
 
-Version d’essai 1.1.0 pour la ZiGate équipée du module Zigbee Meshreen **MS5168‑M05 (NXP JN5168)** et du module Wi‑Fi **ESP8266 / ESP‑12F**. La configuration Wi-Fi par USB a été testée en simulation et reste à valider sur la carte physique.
+Version d’essai 1.1.1 pour la ZiGate équipée du module Zigbee Meshreen **MS5168‑M05 (NXP JN5168)** et du module Wi‑Fi **ESP8266 / ESP‑12F**. Le changement de Wi-Fi par USB a été testé en simulation et reste à valider sur la carte physique.
 
 | Fichier | Carte à programmer | Base |
 | --- | --- | --- |
-| `firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin` | Carte Wi‑Fi portant le module `ESP8266MOD` | Schéma et fonctionnement du firmware Wi‑Fi ZiGate v1.3 |
+| `firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin` | Carte Wi‑Fi portant le module `ESP8266MOD` | Schéma et fonctionnement du firmware Wi‑Fi ZiGate v1.3 |
 | `firmwares/ZiGate-Radio-JN5168-v3.23-OPDM-Z2M.bin` | Carte radio portant l’étiquette `MS5168-M05` | Firmware radio ZiGate v3.23 OPDM |
 
-Le firmware Wi‑Fi transmet les trames ZiGate sur TCP `9999` et utilise l’UART à `115200` bauds sur GPIO15 TX / GPIO13 RX. Il retente le Wi‑Fi en arrière-plan, limite le pont à un client et conserve les octets en cas d’écriture partielle. Le firmware radio rejette les trames tronquées, accepte l’encodage de `0x10` employé par le pilote Zigbee2MQTT et reconnaît son format de configuration de la clé réseau lors de la formation d’un réseau neuf.
+Le firmware Wi‑Fi transmet les trames ZiGate sur TCP `9999` et utilise l’UART à `115200` bauds sur GPIO15 TX / GPIO13 RX quand un client TCP est connecté. L’UART revient sur l’USB à la déconnexion du client. Le pont conserve les octets en cas d’écriture partielle. Le firmware radio rejette les trames tronquées, accepte l’encodage de `0x10` employé par le pilote Zigbee2MQTT et reconnaît son format de configuration de la clé réseau lors de la formation d’un réseau neuf.
 
 ## 1. Programmer le module Wi‑Fi
 
@@ -23,10 +23,10 @@ Le firmware Wi‑Fi transmet les trames ZiGate sur TCP `9999` et utilise l’UAR
 
    ```sh
    python -m esptool --chip esp8266 --port PORT_WIFI --baud 115200 read_flash 0x0 0x400000 sauvegarde-esp8266.bin
-   python -m esptool --chip esp8266 --port PORT_WIFI --baud 115200 write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x0 firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.0.bin
+   python -m esptool --chip esp8266 --port PORT_WIFI --baud 115200 write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x0 firmwares/ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin
    ```
 
-4. Débranche et rebranche la carte Wi‑Fi seule, bouton relâché. Une fois la carte alimentée, maintiens le bouton 2 secondes, puis relâche-le. Saisis le Wi-Fi 2,4 GHz de ta box dans [le formulaire USB](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi), clique sur **Enregistrer le Wi-Fi** et choisis le port USB. La carte enregistre les identifiants quand la connexion aboutit et la page affiche l’adresse attribuée par la box. Reprends cette étape pour changer de réseau.
+4. Rebranche la carte Wi‑Fi seule, bouton relâché. Saisis le Wi-Fi 2,4 GHz de ta box dans [le formulaire USB de l’étape 1b](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi), clique sur **Enregistrer le Wi-Fi** et choisis le port USB. La carte enregistre les identifiants quand la connexion aboutit et la page affiche l’adresse attribuée par la box. Pour changer de réseau plus tard, arrête **Zigbee2MQTT ZiGate** si l’application est démarrée, puis reprends cette étape.
 
 ### Configuration via le point d’accès
 
