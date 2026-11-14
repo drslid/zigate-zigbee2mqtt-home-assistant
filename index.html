@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Flashe et configure le Wi-Fi de ta ZiGate v1.3 en USB depuis Chrome ou Edge, puis ajoute-la à Home Assistant.">
+  <meta name="description" content="Guide illustré pour flasher et configurer ta ZiGate Wi-Fi v1.3 en USB, puis l’ajouter à Home Assistant avec Zigbee2MQTT.">
   <meta name="theme-color" content="#f5f7f3">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./assets/style.css?v=9">
-  <script type="module" src="./app.js?v=9"></script>
+  <link rel="stylesheet" href="./assets/style.css?v=10">
+  <script type="module" src="./app.js?v=10"></script>
   <title>Mise à jour ZiGate Wi-Fi v1.3</title>
 </head>
 <body>
@@ -29,12 +29,9 @@
       <div>
         <p class="eyebrow">ZiGate Wi-Fi v1.3 · Zigbee2MQTT</p>
         <h1 id="page-title">Ta ZiGate dans<br>Home Assistant.</h1>
-        <p class="intro">Flashe et configure le module Wi-Fi, puis flashe la radio Zigbee. Ouvre cette page dans <strong>Chrome ou Edge sur ordinateur</strong>.</p>
+        <p class="intro">Suis les photos pour préparer ta clé et l’ajouter dans Home Assistant. Ouvre cette page dans <strong>Chrome ou Edge sur ordinateur</strong>.</p>
       </div>
-      <div class="hardware" aria-label="Deux modules à programmer">
-        <div class="module-label"><span class="chip-art" aria-hidden="true"><svg viewBox="0 0 80 52" fill="none"><path d="M15 6h50v40H15zM25 6v7h7V6h7v7h7V6h7v7h6M10 16h5m-5 7h5m-5 7h5m-5 7h5m50-21h5m-5 7h5m-5 7h5m-5 7h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="25" y="20" width="30" height="17" rx="3" fill="currentColor" opacity=".22"/></svg></span><strong>ESP8266</strong><span>Module Wi-Fi</span></div>
-        <div class="module-label"><span class="chip-art" aria-hidden="true"><svg viewBox="0 0 80 52" fill="none"><rect x="14" y="8" width="52" height="36" rx="4" stroke="currentColor" stroke-width="2"/><rect x="24" y="16" width="32" height="20" rx="3" fill="currentColor" opacity=".24"/><path d="M21 4v4m8-4v4m8-4v4m8-4v4m8-4v4m8-4v4M21 44v4m8-4v4m8-4v4m8-4v4m8-4v4m8-4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><strong>JN5168</strong><span>Radio Zigbee</span></div>
-      </div>
+      <img class="hero-product" src="./assets/guide/zigate-boitier.webp" width="900" height="470" alt="ZiGate Wi-Fi v1.3 dans son boîtier translucide">
     </section>
 
     <section id="flash" aria-labelledby="installer-title">
@@ -67,18 +64,52 @@
         <span class="version" title="Le flash sur une ZiGate physique reste à valider">Version d’essai</span>
       </div>
       <div class="preparation">
-        <div class="preparation-text">
+        <div class="guide-heading">
           <h2 id="preparation-title">Branche le module Wi-Fi seul</h2>
-          <ol id="preparation-steps">
-            <li>Débranche la ZiGate et sépare la carte Wi-Fi de la radio.</li>
-            <li>Pour flasher, maintiens le bouton près des broches en branchant l’USB, puis relâche-le.</li>
-          </ol>
+          <p class="firmware-tag" id="firmware-version">Wi-Fi 1.1.1</p>
         </div>
-        <p class="firmware-tag" id="firmware-version">Wi-Fi 1.1.1</p>
+        <div class="guide-grid" id="wifi-flash-guide">
+          <ol class="short-steps">
+            <li><strong>Débranche</strong> la ZiGate, ouvre le boîtier et sépare les deux cartes.</li>
+            <li><strong>Appuie</strong> sur le petit bouton sous les broches.</li>
+            <li><strong>Branche</strong> la carte Wi-Fi en USB en gardant le bouton enfoncé.</li>
+            <li><strong>Relâche</strong> le bouton dès que la carte est branchée.</li>
+            <li>Clique sur <strong>Choisir le port USB</strong>, puis sur <strong>Installer le firmware</strong> une fois le port sélectionné.</li>
+          </ol>
+          <figure class="guide-figure">
+            <div class="guide-photo wifi-button-mark">
+              <img src="./assets/guide/module-wifi.webp" width="745" height="405" alt="Carte Wi-Fi avec la prise USB à gauche et le petit bouton sous les broches à droite">
+              <span class="photo-marker" aria-hidden="true"></span>
+            </div>
+            <figcaption>Bouton du module Wi-Fi</figcaption>
+          </figure>
+        </div>
+        <div class="guide-grid" id="radio-flash-guide" hidden>
+          <ol class="short-steps">
+            <li>USB débranché, <strong>emboîte</strong> la radio seule sur l’adaptateur USB‑TTL du kit.</li>
+            <li><strong>Appuie</strong> sur le bouton <strong>S2</strong> de la radio.</li>
+            <li><strong>Branche</strong> l’adaptateur en USB en gardant S2 enfoncé.</li>
+            <li><strong>Relâche</strong> S2 dès que l’adaptateur est branché.</li>
+            <li>Clique sur <strong>Choisir le port USB</strong>, puis sur <strong>Installer le firmware</strong> une fois le port sélectionné.</li>
+          </ol>
+          <div class="guide-radio-photos">
+            <figure class="guide-figure">
+              <div class="guide-photo"><img src="./assets/guide/adaptateur-usb-ttl.webp" width="686" height="247" alt="Adaptateur USB-TTL du kit avec cinq broches de connexion" loading="lazy"></div>
+              <figcaption>Adaptateur USB‑TTL</figcaption>
+            </figure>
+            <figure class="guide-figure">
+              <div class="guide-photo radio-button-mark">
+                <img src="./assets/guide/module-radio.webp" width="474" height="402" alt="Carte radio séparée avec le bouton rond S2 entouré" loading="lazy">
+                <span class="photo-marker" aria-hidden="true"></span>
+              </div>
+              <figcaption>Bouton S2 de la radio</figcaption>
+            </figure>
+          </div>
+        </div>
       </div>
 
       <div class="controls">
-        <button id="connect" class="button primary" type="button" disabled>Connecter le module <span aria-hidden="true">↗</span></button>
+        <button id="connect" class="button primary" type="button" disabled>Choisir le port USB <span aria-hidden="true">↗</span></button>
         <button id="backup" class="button secondary" type="button" hidden>Sauvegarder</button>
         <button id="install" class="button primary" type="button" hidden>Installer le firmware <span aria-hidden="true">↗</span></button>
         <button id="disconnect" class="button secondary" type="button" hidden>Déconnecter</button>
@@ -96,12 +127,20 @@
       </div>
       <section id="wifi" class="wifi-form-panel" aria-labelledby="wifi-title">
         <h3 id="wifi-title">1b. Configure le Wi-Fi par USB</h3>
-        <p class="field-hint">Après l’installation du firmware Wi-Fi <strong>1.1.1</strong>, utilise ce formulaire pour ta première connexion ou pour changer de réseau.</p>
-        <ol class="short-steps">
-          <li>Branche le module Wi-Fi <strong>seul, bouton relâché</strong>.</li>
-          <li>Si <strong>Zigbee2MQTT ZiGate</strong> est démarré dans Home Assistant, arrête cette application le temps du réglage.</li>
-          <li>Saisis le Wi-Fi <strong>2,4 GHz</strong> de ta box, clique sur <strong>Enregistrer le Wi-Fi</strong>, puis choisis le port USB du module.</li>
-        </ol>
+        <div class="guide-grid wifi-setup-guide">
+          <div>
+            <p class="field-hint">Firmware Wi-Fi <strong>1.1.1</strong> requis. Si l’application <strong>Zigbee2MQTT ZiGate</strong> tourne, arrête-la avant le réglage.</p>
+            <ol class="short-steps">
+              <li>Si le module Wi-Fi est déjà branché, débranche-le. Branche-le <strong>seul, sans appuyer sur le bouton</strong>.</li>
+              <li>Saisis le Wi-Fi <strong>2,4 GHz</strong> de ta box.</li>
+              <li>Clique sur <strong>Enregistrer le Wi-Fi</strong>, puis choisis le port USB.</li>
+            </ol>
+          </div>
+          <figure class="guide-figure">
+            <div class="guide-photo"><img src="./assets/guide/module-wifi.webp" width="745" height="405" alt="Module Wi-Fi seul, séparé de la radio" loading="lazy"></div>
+            <figcaption>Le bouton reste relâché.</figcaption>
+          </figure>
+        </div>
         <form class="config-example" id="wifi-form" autocomplete="off" aria-describedby="wifi-form-note">
           <div class="wifi-form-fields">
             <div>
@@ -138,9 +177,9 @@
         </div>
       </details>
       <details class="reset-panel" id="reset-section" hidden>
-        <summary>Repartir avec un réseau Zigbee neuf</summary>
+        <summary>Facultatif · Effacer les anciens appairages</summary>
         <div class="reset-body">
-          <p>Après le flash, garde la radio sur l’adaptateur USB-TTL. Débranche et rebranche-la sans maintenir son bouton.</p>
+          <p>Garde la radio sur l’adaptateur USB‑TTL. Débranche l’adaptateur, puis rebranche-le <strong>sans appuyer sur S2</strong>.</p>
           <p>La réinitialisation efface les appareils appairés et les paramètres de l’ancien réseau.</p>
           <button id="reset" class="button secondary" type="button" disabled>Effacer l’ancien réseau</button>
           <p id="reset-status" class="status" role="status" aria-live="polite" hidden></p>
@@ -151,15 +190,22 @@
 
     <section class="step-panel step-wifi" id="montage" aria-labelledby="montage-title">
       <div class="step-heading"><span class="step-number" aria-hidden="true">3</span><h2 id="montage-title"><span class="sr-only">3. </span>Remonte la ZiGate</h2></div>
-      <ol class="short-steps">
-        <li>Débranche le module Wi-Fi puis remonte les deux cartes.</li>
-        <li>Branche la ZiGate bouton relâché. Elle se connecte au réseau enregistré à l’étape 1.</li>
-        <li>Vérifie son adresse IP dans la liste des appareils de ta box.</li>
-      </ol>
+      <div class="guide-grid montage-guide">
+        <ol class="short-steps">
+          <li><strong>Débranche</strong> les deux cartes. Retire la radio de l’adaptateur USB‑TTL.</li>
+          <li><strong>Emboîte</strong> la radio sur le module Wi-Fi, comme sur la photo.</li>
+          <li><strong>Branche</strong> la ZiGate montée en USB <strong>sans appuyer sur les boutons</strong>.</li>
+          <li>Retrouve son <strong>adresse IP</strong> dans la liste des appareils de ta box.</li>
+        </ol>
+        <figure class="guide-figure">
+          <div class="guide-photo"><img src="./assets/guide/zigate-assemblee.webp" width="908" height="350" alt="ZiGate remontée avec le module Wi-Fi à gauche et la radio à droite" loading="lazy"></div>
+          <figcaption>Les deux cartes emboîtées.</figcaption>
+        </figure>
+      </div>
       <details id="wifi-ap" class="help-panel">
         <summary>Configurer le Wi-Fi via le point d’accès de la ZiGate</summary>
         <ol class="short-steps">
-          <li>Branche le module Wi-Fi en USB, bouton relâché. Si l’ancien réseau est encore accessible, coupe-le temporairement. Le point d’accès apparaît après environ 45 secondes hors connexion.</li>
+          <li>Branche le module Wi-Fi en USB <strong>sans appuyer sur le bouton</strong>. Si l’ancien réseau est encore accessible, coupe-le temporairement. Le point d’accès apparaît après environ 45 secondes hors connexion.</li>
           <li>
             Lis le nom et la clé du point d’accès. Connecte ton ordinateur à ce réseau.
             <button id="wifi-setup" class="button secondary wifi-setup-button" type="button" disabled>Lire la clé Wi-Fi en USB</button>
@@ -182,10 +228,10 @@
         <div class="config-text">
           <ol class="short-steps">
             <li>
-              Ajoute le dépôt ZiGate dans la <a href="https://my.home-assistant.io/redirect/supervisor_store/" target="_blank" rel="noopener">boutique de Home Assistant</a>, puis installe <strong>Zigbee2MQTT ZiGate</strong>.
+              Clique sur <strong>Ajouter le dépôt ZiGate</strong>, puis installe <strong>Zigbee2MQTT ZiGate</strong> dans la <a href="https://my.home-assistant.io/redirect/supervisor_store/" target="_blank" rel="noopener">boutique de Home Assistant</a>.
               <div class="app-store-link"><a class="button primary" href="https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fdrslid%2Fzigate-zigbee2mqtt-home-assistant" target="_blank" rel="noopener">Ajouter le dépôt ZiGate <span aria-hidden="true">↗</span></a></div>
             </li>
-            <li>Dans <strong>Configuration</strong>, renseigne l’<strong>adresse IP de la ZiGate</strong>, choisis un canal Zigbee différent de celui de ton premier réseau et enregistre.</li>
+            <li>Dans <strong>Configuration</strong>, saisis l’<strong>adresse IP de la ZiGate</strong>. Si tu as déjà un réseau Zigbee, choisis un autre canal. Enregistre.</li>
             <li>Clique sur <strong>Démarrer</strong>, puis sur <strong>Ouvrir l’interface Web</strong>. Active <strong>Afficher dans la barre latérale</strong> pour retrouver la page ZiGate.</li>
           </ol>
           <p class="field-hint">Les deux instances peuvent utiliser le même broker MQTT. Zigbee2MQTT ZiGate utilise le préfixe <code>zigbee2mqtt_zigate</code>.</p>
@@ -227,7 +273,7 @@ serial:
     <section class="step-panel step-pair" aria-labelledby="pair-title">
       <div class="step-heading"><span class="step-number" aria-hidden="true">5</span><h2 id="pair-title"><span class="sr-only">5. </span>Ajoute ton premier appareil Zigbee</h2></div>
       <ol class="short-steps">
-        <li>Dans <strong>Zigbee2MQTT ZiGate</strong>, vérifie que le coordinateur est connecté, puis active <strong>Autoriser l’appairage</strong>.</li>
+        <li>Ouvre <strong>Zigbee2MQTT ZiGate</strong> et clique sur <strong>Autoriser l’appairage</strong>.</li>
         <li>Mets une ampoule ou un capteur en mode appairage.</li>
         <li>Dans Home Assistant, ouvre l’intégration <strong>MQTT</strong> dans <strong>Paramètres → Appareils et services</strong>. Ajoute-la si elle manque. Ton appareil doit y apparaître.</li>
       </ol>

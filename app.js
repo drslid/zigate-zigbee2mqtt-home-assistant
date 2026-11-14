@@ -4,23 +4,15 @@ import {configureWifi, readWifiSetup, validIpv4, wifiInputErrors} from "./wifi-s
 const releases = {
     wifi: {
         title: "Branche le module Wi-Fi seul",
-        instructions: [
-            "Débranche la ZiGate et sépare la carte Wi-Fi de la radio.",
-            "Pour flasher, maintiens le bouton près des broches en branchant l’USB, puis relâche-le.",
-        ],
         version: "Wi-Fi 1.1.1",
         file: "ZiGate-WiFi-v1.3-Z2M-ESP8266-1.1.1.bin",
         sha256: "59d2c4a152af4257041bd724959994563e6a401ea095a31434891d0b11034409",
         backup: "sauvegarde-ZiGate-ESP8266.bin",
         installText: "Le firmware Wi-Fi va être remplacé. Garde le module branché jusqu’à la fin de la vérification.",
-        next: "Firmware Wi-Fi installé. Rebranche le module bouton relâché, puis configure le Wi-Fi.",
+        next: "Firmware Wi-Fi installé. Passe à l’étape 1b pour configurer le Wi-Fi.",
     },
     radio: {
-        title: "Branche le JN5168 sur son adaptateur USB-TTL",
-        instructions: [
-            "Débranche la ZiGate, sépare les cartes et monte la radio sur l’adaptateur USB-TTL du kit.",
-            "Maintiens le bouton de la carte radio en branchant l’adaptateur, puis relâche-le.",
-        ],
+        title: "Branche la radio sur l’adaptateur USB‑TTL",
         version: "Radio 3.23 OPDM",
         file: "ZiGate-Radio-JN5168-v3.23-OPDM-Z2M.bin",
         sha256: "c6dce9820c03cb2f60ef22f147d4de86bf4525cf1139a5f80fed5ea62414a06a",
@@ -85,11 +77,8 @@ function showNextStep() {
 function showTarget() {
     const release = releases[target];
     byId("preparation-title").textContent = release.title;
-    byId("preparation-steps").replaceChildren(...release.instructions.map((text) => {
-        const item = document.createElement("li");
-        item.textContent = text;
-        return item;
-    }));
+    byId("wifi-flash-guide").hidden = target !== "wifi";
+    byId("radio-flash-guide").hidden = target !== "radio";
     byId("firmware-version").textContent = release.version;
     byId("firmware-download").href = `./firmwares/${release.file}`;
     byId("radio-port-help").hidden = target !== "radio";
