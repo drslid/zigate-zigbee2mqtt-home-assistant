@@ -73,7 +73,7 @@ Si PowerShell ouvre le port et que Chrome ou Edge échoue encore, tu peux utilis
 
 ## 3. Lancer Zigbee2MQTT
 
-Utilise le bloc `serial` de [l’exemple de configuration](home-assistant/zigbee2mqtt.example.yaml) dans la configuration d’une instance Zigbee2MQTT 2.x avec un broker MQTT configuré. Remplace `192.168.1.50` par l’adresse de la ZiGate. Arrête toute autre intégration qui utilise cette passerelle avant le démarrage.
+Sous Home Assistant OS, installe [l’application Zigbee2MQTT ZiGate](README.md#installation-dans-home-assistant) pour ouvrir une instance dédiée depuis la barre latérale. Renseigne l’IP de la passerelle dans l’onglet **Configuration**. Pour une instance en conteneur, utilise [l’exemple de configuration](home-assistant/zigbee2mqtt.example.yaml) dans son propre dossier de données. Arrête toute autre intégration qui utilise cette passerelle avant le démarrage.
 
 Dans les logs, vérifie la connexion au coordinateur et la version radio `0323`. Appaire ensuite un appareil et teste une commande, puis vérifie le retour de la connexion après une coupure Wi‑Fi. Si le démarrage échoue, relève les lignes depuis `Starting zigbee-herdsman` jusqu’à la première erreur. Le pilote ZiGate de Zigbee2MQTT ne bénéficie plus de maintenance et la sauvegarde native du coordinateur reste indisponible. [Documentation Zigbee2MQTT pour ZiGate](https://www.zigbee2mqtt.io/guide/adapters/zigate.html)
 

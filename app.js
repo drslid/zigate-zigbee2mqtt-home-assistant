@@ -237,8 +237,8 @@ reset.addEventListener("click", () => run(byId("reset-status"), async () => {
 
 const ipInput = byId("zigate-ip");
 const ipFeedback = byId("ip-feedback");
-const portValue = byId("zigate-tcp-port");
-const copyPort = byId("copy-port");
+const ipValue = byId("zigate-ip-value");
+const copyIp = byId("copy-ip");
 const exampleIp = "192.168.1.50";
 
 function updateAddress() {
@@ -250,11 +250,13 @@ function updateAddress() {
     ipFeedback.textContent = invalid
         ? "Entre une adresse IPv4, par exemple 192.168.1.50."
         : "Utilise l’adresse locale trouvée à l’étape 3.";
-    portValue.textContent = valid ? port : "tcp://ADRESSE_IP:9999";
-    copyPort.disabled = !valid;
+    ipValue.textContent = valid ? value : "À renseigner";
+    copyIp.disabled = !valid;
     byId("copy").disabled = invalid;
     byId("config-code").firstElementChild.textContent = `homeassistant:
   enabled: true
+mqtt:
+  base_topic: zigbee2mqtt_zigate
 serial:
   adapter: zigate
   port: ${port}`;
@@ -273,7 +275,7 @@ wifiSetup.addEventListener("click", () => run(byId("wifi-status"), async () => {
     if (result.ip) {
         ipInput.value = result.ip;
         updateAddress();
-        status(output, `ZiGate connectée à l’adresse ${result.ip}. Le port Zigbee2MQTT est prêt à copier à l’étape 4.`, "ok");
+        status(output, `ZiGate connectée à l’adresse ${result.ip}. Tu peux copier cette adresse à l’étape 4.`, "ok");
     } else {
         byId("setup-ssid").textContent = result.ssid;
         byId("setup-password").textContent = result.password;
@@ -318,7 +320,7 @@ function bindCopy(button, source) {
 }
 
 bindCopy(byId("copy"), byId("config-code"));
-bindCopy(copyPort, portValue);
+bindCopy(copyIp, ipValue);
 bindCopy(byId("copy-password"), byId("setup-password"));
 showTarget();
 updateAddress();

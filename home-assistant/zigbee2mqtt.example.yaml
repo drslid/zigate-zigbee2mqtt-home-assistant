@@ -1,14 +1,20 @@
-# Exemple pour l’application Zigbee2MQTT avec Mosquitto sur Home Assistant OS.
-# Fusionner ces sections avec le fichier de configuration de Zigbee2MQTT.
+# Exemple pour une deuxième instance Zigbee2MQTT en conteneur.
+# Utiliser un dossier de données distinct et adapter l’adresse du broker et le canal.
 homeassistant:
   enabled: true
 
 mqtt:
   server: mqtt://core-mosquitto:1883
-  base_topic: zigbee2mqtt
+  base_topic: zigbee2mqtt_zigate
   user: zigbee2mqtt
   password: "REMPLACER_PAR_LE_MOT_DE_PASSE_MQTT"
 
 serial:
   adapter: zigate
   port: tcp://192.168.1.50:9999
+
+advanced:
+  channel: 25
+  pan_id: GENERATE
+  ext_pan_id: GENERATE
+  network_key: GENERATE

@@ -1,0 +1,20 @@
+configuration:
+  zigate_ip:
+    name: ZiGate IP address
+    description: Local IPv4 address assigned by your router.
+  zigbee_channel:
+    name: Zigbee channel
+    description: Choose a different channel from your first Zigbee network.
+  mqtt:
+    name: External MQTT broker
+    description: Leave this section empty to use Mosquitto in Home Assistant.
+    fields:
+      server:
+        name: Broker address
+        description: For example mqtt://192.168.1.20:1883.
+      user:
+        name: Username
+        description: MQTT username if your broker requires one.
+      password:
+        name: Password
+        description: Password for that MQTT user.

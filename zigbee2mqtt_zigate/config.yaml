@@ -1,0 +1,27 @@
+name: Zigbee2MQTT ZiGate
+description: Une instance Zigbee2MQTT dédiée à la ZiGate Wi-Fi v1.3.
+version: "2.14.3-1"
+slug: zigbee2mqtt_zigate
+url: https://github.com/drslid/zigate-zigbee2mqtt-home-assistant#installation-dans-home-assistant
+arch:
+  - amd64
+  - aarch64
+init: false
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:zigbee
+panel_title: Zigbee2MQTT ZiGate
+services:
+  - mqtt:want
+hassio_api: true
+options:
+  zigate_ip: ""
+  zigbee_channel: 25
+  mqtt: {}
+schema:
+  zigate_ip: str
+  zigbee_channel: int(11,26)
+  mqtt:
+    server: str?
+    user: str?
+    password: password?
