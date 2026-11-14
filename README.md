@@ -40,7 +40,7 @@ Ouvre le [guide illustré](https://drslid.github.io/zigate-zigbee2mqtt-home-assi
 
 <p align="center">
   <a href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/">
-    <img src="docs/assets/dashboard.jpg" alt="Page de flash ZiGate avec les étapes USB et le bouton du module Wi-Fi entouré sur la photo" width="1200">
+    <img src="docs/assets/dashboard.jpg" alt="Page de flash ZiGate avec la radio montée sur l’USB‑TTL et le bouton S2 entouré" width="900">
   </a>
 </p>
 
