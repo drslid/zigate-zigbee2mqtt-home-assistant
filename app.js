@@ -247,7 +247,6 @@ reset.addEventListener("click", () => run(byId("reset-status"), async () => {
 
 const ipInput = byId("zigate-ip");
 const ipFeedback = byId("ip-feedback");
-const ipValue = byId("zigate-ip-value");
 const copyIp = byId("copy-ip");
 const exampleIp = "192.168.1.50";
 const ipHint = ipFeedback.textContent;
@@ -261,7 +260,6 @@ function updateAddress() {
     ipFeedback.textContent = invalid
         ? "Entre une adresse IPv4, par exemple 192.168.1.50."
         : ipHint;
-    ipValue.textContent = valid ? value : "À renseigner";
     copyIp.disabled = !valid;
     byId("copy").disabled = invalid;
     byId("config-code").firstElementChild.textContent = `homeassistant:
@@ -358,18 +356,24 @@ if (available) {
 
 function bindCopy(button, source) {
     const label = button.textContent;
+    const isInput = source instanceof HTMLInputElement;
     let timer;
     button.addEventListener("click", async () => {
         clearTimeout(timer);
         try {
-            await navigator.clipboard.writeText(source.textContent);
+            await navigator.clipboard.writeText(isInput ? source.value.trim() : source.textContent);
             button.textContent = "Copié";
         } catch {
-            const range = document.createRange();
-            range.selectNodeContents(source);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
+            if (isInput) {
+                source.focus();
+                source.select();
+            } else {
+                const range = document.createRange();
+                range.selectNodeContents(source);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
             button.textContent = "Sélectionné";
         }
         timer = setTimeout(() => { button.textContent = label; }, 1800);
@@ -377,7 +381,7 @@ function bindCopy(button, source) {
 }
 
 bindCopy(byId("copy"), byId("config-code"));
-bindCopy(copyIp, ipValue);
+bindCopy(copyIp, ipInput);
 bindCopy(byId("copy-password"), byId("setup-password"));
 showTarget();
 updateAddress();

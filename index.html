@@ -6,8 +6,8 @@
   <meta name="description" content="Flashe et configure le Wi-Fi de ta ZiGate v1.3 en USB depuis Chrome ou Edge, puis ajoute-la à Home Assistant.">
   <meta name="theme-color" content="#f5f7f3">
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./assets/style.css?v=8">
-  <script type="module" src="./app.js?v=8"></script>
+  <link rel="stylesheet" href="./assets/style.css?v=9">
+  <script type="module" src="./app.js?v=9"></script>
   <title>Mise à jour ZiGate Wi-Fi v1.3</title>
 </head>
 <body>
@@ -192,11 +192,11 @@
         </div>
         <div class="config-example">
           <label for="zigate-ip">Adresse IP de ta ZiGate</label>
-          <input type="text" id="zigate-ip" placeholder="192.168.1.50" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="ip-feedback">
+          <div class="ip-input-row">
+            <input type="text" id="zigate-ip" placeholder="192.168.1.50" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="ip-feedback">
+            <button id="copy-ip" class="button secondary" type="button" title="Copier l’adresse IP" disabled>Copier</button>
+          </div>
           <p id="ip-feedback" class="field-hint">Utilise l’adresse affichée après la configuration USB ou celle indiquée par ta box.</p>
-          <dl class="serial-values">
-            <div><dt>Adresse IP</dt><dd><code id="zigate-ip-value">À renseigner</code><button id="copy-ip" class="button secondary" type="button" disabled>Copier l’adresse IP</button></dd></div>
-          </dl>
         </div>
       </div>
       <details class="help-panel">
