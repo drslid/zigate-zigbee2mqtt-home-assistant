@@ -1,5 +1,5 @@
-import {LocalizedError, t} from "./languages.js?v=1";
-import {openSerial} from "./serial.js?v=4";
+import {LocalizedError, t} from "./languages.js?v=2";
+import {openSerial} from "./serial.js?v=5";
 
 const chipId = 0x00008686;
 const chipIdMask = 0x003fffff; // Part and manufacturer fields, independent of silicon revision.

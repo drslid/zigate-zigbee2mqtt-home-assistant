@@ -1,0 +1,10 @@
+{
+  "name": "zigate-site-build",
+  "private": true,
+  "scripts": {
+    "build": "node build-site.mjs"
+  },
+  "devDependencies": {
+    "cheerio": "1.1.2"
+  }
+}

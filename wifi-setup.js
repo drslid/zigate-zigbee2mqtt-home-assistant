@@ -1,4 +1,4 @@
-import {LocalizedError, t} from "./languages.js?v=1";
+import {LocalizedError, t} from "./languages.js?v=2";
 import {openSerial} from "./serial.js";
 
 const baudRate = 115200;

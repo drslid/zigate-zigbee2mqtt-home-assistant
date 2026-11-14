@@ -1,4 +1,4 @@
-import {LocalizedError, t} from "./languages.js?v=1";
+import {LocalizedError, t} from "./languages.js?v=2";
 export async function openSerial(port, baudRate) {
     try {
         await port.open({baudRate, dataBits: 8, stopBits: 1, parity: "none", flowControl: "none", bufferSize: 4096});

@@ -22,7 +22,7 @@
 
 Tu as besoin d’une **ZiGate Wi-Fi v1.3**, de son adaptateur **USB‑TTL** et d’un ordinateur avec **Chrome ou Edge**.
 
-Ouvre le [guide illustré](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#flash) et suis les étapes.
+Ouvre le [guide illustré en français](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/fr/#flash) et suis les étapes.
 
 | Étape | Geste au branchement |
 | --- | --- |
@@ -35,6 +35,8 @@ Ouvre le [guide illustré](https://drslid.github.io/zigate-zigbee2mqtt-home-assi
 5. Choisis ton [parcours MQTT](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#mqtt), démarre **Zigbee2MQTT ZiGate** et appaire ton premier appareil.
 
 **Guides** · [Configurer le Wi-Fi](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/#wifi) · [Home Assistant](#installation-dans-home-assistant) · [Pilotes USB pour Windows](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pilotes.html) · [Flash manuel](LISEZ-MOI.md)
+
+[English](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/en/) · [Français](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/fr/) · [Español](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/es/) · [Italiano](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/it/) · [Português](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pt/) · [Deutsch](https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/de/)
 
 ## Aperçu du tableau de bord
 

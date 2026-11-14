@@ -1,4 +1,4 @@
-import {LocalizedError, t} from "./languages.js?v=1";
+import {LocalizedError, t} from "./languages.js?v=2";
 import {ESPLoader, Transport, md5Hex} from "./assets/esp-tools.js";
 
 const flashBytes = 4 * 1024 * 1024;

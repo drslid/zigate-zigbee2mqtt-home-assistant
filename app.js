@@ -1,6 +1,6 @@
-import {languageEvents, LocalizedError, setText, t} from "./languages.js?v=1";
-import {connectRadio, resetRadioNetwork} from "./radio.js?v=4";
-import {configureWifi, readWifiSetup, validIpv4, wifiInputErrors} from "./wifi-setup.js?v=4";
+import {languageEvents, LocalizedError, setText, t} from "./languages.js?v=2";
+import {connectRadio, resetRadioNetwork} from "./radio.js?v=5";
+import {configureWifi, readWifiSetup, validIpv4, wifiInputErrors} from "./wifi-setup.js?v=5";
 
 const releases = {
     wifi: {
@@ -81,7 +81,7 @@ function showTarget() {
     byId("wifi-flash-guide").hidden = target !== "wifi";
     byId("radio-flash-guide").hidden = target !== "radio";
     setText(byId("firmware-version"), release.version);
-    byId("firmware-download").href = `./firmwares/${release.file}`;
+    byId("firmware-download").href = new URL(`./firmwares/${release.file}`, import.meta.url).href;
     byId("radio-port-help").hidden = target !== "radio";
     byId("wifi").hidden = target !== "wifi";
     showNextStep();
@@ -192,7 +192,7 @@ connect.addEventListener("click", () => run(byId("status"), async () => {
     const port = await navigator.serial.requestPort();
     status(output, target === "radio" ? "identifyRadio" : "identifyModule");
     const device = target === "wifi"
-        ? await (await import("./wifi.js?v=3")).connectWifi(port)
+        ? await (await import("./wifi.js?v=4")).connectWifi(port)
         : await connectRadio(port);
     connection = {device, port};
     status(output, () => device.description, "ok");

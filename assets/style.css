@@ -208,6 +208,6 @@ dialog p { margin: 12px 0 19px; color: var(--muted); line-height: 1.5; }
 .language-picker summary::-webkit-details-marker { display: none; }
 .language-picker img { display: block; border-radius: 2px; object-fit: fill; box-shadow: 0 0 0 1px #203e4033; }
 .language-picker ul { position: absolute; inset-inline-end: 0; margin: 6px 0 0; padding: 4px; min-width: 146px; list-style: none; border: 1px solid var(--line); border-radius: 10px; background: var(--card); box-shadow: 0 5px 18px #203e4026; }
-.language-picker button { display: flex; align-items: center; gap: 9px; width: 100%; padding: 7px 9px; border: 0; border-radius: 6px; background: transparent; color: var(--ink); text-align: start; white-space: nowrap; }
-.language-picker summary:hover, .language-picker button:hover, .language-picker button[aria-pressed="true"] { background: var(--soft); }
-.language-picker button[aria-pressed="true"] { font-weight: 700; }
+.language-picker a { display: flex; align-items: center; gap: 9px; padding: 7px 9px; border-radius: 6px; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.language-picker summary:hover, .language-picker a:hover, .language-picker a[aria-current] { background: var(--soft); }
+.language-picker a[aria-current] { font-weight: 700; }

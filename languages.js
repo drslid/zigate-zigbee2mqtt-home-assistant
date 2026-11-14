@@ -1,18 +1,14 @@
-import {messages} from "./messages.js?v=1";
+import {messages} from "./messages.js?v=2";
+import {languages, pages, pagePath} from "./site-routes.js";
 
-const languages = {
-    en: ["English", "gb"],
-    fr: ["Français", "fr"],
-    es: ["Español", "es"],
-    it: ["Italiano", "it"],
-    pt: ["Português", "pt"],
-    de: ["Deutsch", "de"],
-};
 const storageKey = "zigate.language";
 const liveText = new Map();
 export const languageEvents = new EventTarget();
 // The hardware modules also run standalone, where their diagnostics default to French.
-let language = typeof document === "undefined" ? "fr" : detectLanguage();
+const page = typeof document === "undefined" ? null : document.documentElement;
+const siteRoot = new URL("./", import.meta.url);
+const fixedLanguage = page?.hasAttribute("data-fixed-language");
+let language = page ? (fixedLanguage ? page.lang : detectLanguage()) : "fr";
 
 function detectLanguage() {
     try {
@@ -61,7 +57,7 @@ export function setText(element, message) {
 }
 
 function translatePage() {
-    document.documentElement.lang = language;
+    page.lang = language;
     for (const element of document.querySelectorAll("[data-i18n]")) {
         const template = document.createElement("template");
         // Catalog entries are local constants, and numbered slots reuse the existing DOM nodes.
@@ -92,13 +88,21 @@ function flag(code) {
     return img;
 }
 
-function addLanguagePicker(header) {
-    const picker = document.createElement("details");
-    picker.className = "language-picker";
-    const summary = document.createElement("summary");
-    picker.append(summary);
-    const list = document.createElement("ul");
-    picker.append(list);
+function bindLanguagePicker(picker) {
+    const summary = picker.querySelector("summary");
+    const links = picker.querySelectorAll("a[hreflang]");
+    const pageName = page.dataset.sitePage;
+    const config = pages[pageName];
+    for (const link of links) {
+        link.href = new URL(pagePath(pageName, link.hreflang), siteRoot).href;
+        const icon = link.querySelector("img");
+        icon.src = new URL(`./assets/flags/${languages[link.hreflang][1]}.png`, siteRoot).href;
+    }
+    for (const attribute of ["href", "src"]) {
+        for (const element of document.querySelectorAll(`[data-site-${attribute}]`)) {
+            element.setAttribute(attribute, new URL(element.getAttribute(`data-site-${attribute}`), siteRoot).href);
+        }
+    }
 
     function updatePicker() {
         const [name, code] = languages[language];
@@ -106,33 +110,55 @@ function addLanguagePicker(header) {
         summary.replaceChildren(flag(code));
         summary.setAttribute("aria-label", label);
         summary.title = label;
-        for (const button of list.querySelectorAll("button")) {
-            button.setAttribute("aria-pressed", String(button.lang === language));
+        for (const link of links) {
+            if (link.hreflang === language) link.setAttribute("aria-current", "true");
+            else link.removeAttribute("aria-current");
+        }
+        for (const link of document.querySelectorAll("a[data-site-page]")) {
+            const hash = link.dataset.siteHash ?? "";
+            link.href = new URL(pagePath(link.dataset.sitePage, language) + hash, siteRoot).href;
         }
     }
 
-    for (const [id, [name, code]] of Object.entries(languages)) {
-        const item = document.createElement("li");
-        const button = document.createElement("button");
-        button.type = "button";
-        button.lang = id;
-        button.append(flag(code), name);
-        button.addEventListener("click", () => {
+    function updateMetadata() {
+        const url = document.head.querySelector(`link[hreflang="${language}"]`).href;
+        document.head.querySelector('link[rel="canonical"]').href = url;
+        const properties = {url, title: t(config.title), description: t(config.description), locale: languages[language][2]};
+        for (const [name, content] of Object.entries(properties)) {
+            document.head.querySelector(`meta[property="og:${name}"]`).content = content;
+        }
+        const alternates = Object.keys(languages).filter(code => code !== language);
+        document.head.querySelectorAll('meta[property="og:locale:alternate"]').forEach((element, index) => {
+            element.content = languages[alternates[index]][2];
+        });
+        const imageAlt = pageName === "dashboard" ? "heroPhoto" : "radioFlashPhoto";
+        document.head.querySelector('meta[property="og:image:alt"]').content = t(imageAlt);
+    }
+
+    for (const link of links) {
+        link.addEventListener("click", (event) => {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
             picker.open = false;
             summary.focus();
-            if (id === language) return;
-            language = id;
+            const nextLanguage = link.hreflang;
             try {
-                localStorage.setItem(storageKey, language);
+                localStorage.setItem(storageKey, nextLanguage);
             } catch {
                 // Keep the new language for the current page.
             }
-            translatePage();
+            const url = new URL(link.href);
+            url.search = location.search;
+            url.hash = location.hash;
+            if (url.pathname !== location.pathname) history.replaceState(history.state, "", url);
+            if (nextLanguage !== language) {
+                language = nextLanguage;
+                translatePage();
+                languageEvents.dispatchEvent(new Event("change"));
+            }
+            updateMetadata();
             updatePicker();
-            languageEvents.dispatchEvent(new Event("change"));
         });
-        item.append(button);
-        list.append(item);
     }
 
     picker.addEventListener("keydown", (event) => {
@@ -146,14 +172,18 @@ function addLanguagePicker(header) {
         if (!picker.contains(event.target)) picker.open = false;
     });
 
+    if (page.lang !== language) translatePage();
+    if (!fixedLanguage && language !== "en") {
+        const url = new URL(pagePath(pageName, language), siteRoot);
+        url.search = location.search;
+        url.hash = location.hash;
+        history.replaceState(history.state, "", url);
+        updateMetadata();
+    }
     updatePicker();
-    header.append(picker);
 }
 
-if (typeof document !== "undefined") {
-    const header = document.querySelector(".header-actions");
-    if (header) {
-        translatePage();
-        addLanguagePicker(header);
-    }
+if (page && Object.hasOwn(pages, page.dataset.sitePage)) {
+    const picker = document.querySelector(".language-picker");
+    if (picker) bindLanguagePicker(picker);
 }

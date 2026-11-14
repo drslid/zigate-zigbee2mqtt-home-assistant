@@ -1,22 +1,59 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-site-page="drivers">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./assets/style.css?v=12">
-  <script type="module" src="./languages.js?v=1"></script>
-  <title data-i18n="driversPageTitle">Windows USB drivers · ZiGate</title>
+  <meta name="description" content="Install CP2102 or PL2303HX USB drivers for ZiGate on Windows 10 or 11. Identify the COM port and export a backup of a working driver." data-i18n-content="driversDescription">
+  <link rel="icon" href="./assets/icon.svg" data-site-href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/style.css?v=13" data-site-href="assets/style.css?v=13">
+  <script type="module" src="./languages.js?v=2" data-site-src="languages.js?v=2"></script>
+  <title data-i18n="driversPageTitle">ZiGate USB Drivers for Windows: CP2102 and PL2303HX</title>
+  <link data-site-meta="" rel="canonical" href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/en/pilotes.html">
+  <link data-site-meta="" rel="alternate" hreflang="en" href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/en/pilotes.html">
+  <link data-site-meta="" rel="alternate" hreflang="fr" href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/fr/pilotes.html">
+  <link data-site-meta="" rel="alternate" hreflang="es" href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/es/pilotes.html">
+  <link data-site-meta="" rel="alternate" hreflang="it" href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/it/pilotes.html">
+  <link data-site-meta="" rel="alternate" hreflang="pt" href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/pt/pilotes.html">
+  <link data-site-meta="" rel="alternate" hreflang="de" href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/de/pilotes.html">
+  <link data-site-meta="" rel="alternate" hreflang="x-default" href="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/en/pilotes.html">
+  <meta data-site-meta="" property="og:title" content="ZiGate USB Drivers for Windows: CP2102 and PL2303HX">
+  <meta data-site-meta="" property="og:description" content="Install CP2102 or PL2303HX USB drivers for ZiGate on Windows 10 or 11. Identify the COM port and export a backup of a working driver.">
+  <meta data-site-meta="" property="og:type" content="website">
+  <meta data-site-meta="" property="og:url" content="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/en/pilotes.html">
+  <meta data-site-meta="" property="og:site_name" content="ZiGate · Zigbee2MQTT">
+  <meta data-site-meta="" property="og:locale" content="en_GB">
+  <meta data-site-meta="" property="og:image" content="https://drslid.github.io/zigate-zigbee2mqtt-home-assistant/assets/guide/radio-sur-usb-ttl.webp">
+  <meta data-site-meta="" property="og:image:type" content="image/webp">
+  <meta data-site-meta="" property="og:image:width" content="620">
+  <meta data-site-meta="" property="og:image:height" content="244">
+  <meta data-site-meta="" property="og:image:alt" content="Radio on the kit’s USB‑TTL adapter, with USB on the left and the S2 button circled on the right">
+  <meta data-site-meta="" property="og:locale:alternate" content="fr_FR">
+  <meta data-site-meta="" property="og:locale:alternate" content="es_ES">
+  <meta data-site-meta="" property="og:locale:alternate" content="it_IT">
+  <meta data-site-meta="" property="og:locale:alternate" content="pt_PT">
+  <meta data-site-meta="" property="og:locale:alternate" content="de_DE">
+  <meta data-site-meta="" name="twitter:card" content="summary_large_image">
 </head>
 <body>
   <header class="site-header">
     <div class="shell header-inner">
-      <a class="brand" href="./" aria-label="ZiGate home" data-i18n-aria-label="homeLabel">
-        <img src="./assets/icon.svg" alt="" width="34" height="34">
+      <a class="brand" href="./" data-site-page="dashboard" aria-label="ZiGate home" data-i18n-aria-label="homeLabel">
+        <img src="./assets/icon.svg" data-site-src="assets/icon.svg" alt="" width="34" height="34">
         <span><strong>ZiGate</strong><small>Zigbee2MQTT</small></span>
       </a>
       <div class="header-actions">
-        <a class="header-link" href="./#flash" data-i18n="backToFlash">Back to the flasher</a>
+        <a class="header-link" href="./#flash" data-site-page="dashboard" data-site-hash="#flash" data-i18n="backToFlash">Back to the flasher</a>
+        <details class="language-picker">
+          <summary aria-label="Change language (English)" title="Change language (English)"><img src="./assets/flags/gb.png" alt="" width="22" height="15"></summary>
+          <ul>
+            <li><a href="./en/pilotes.html" lang="en" hreflang="en" aria-current="true"><img src="./assets/flags/gb.png" alt="" width="22" height="15">English</a></li>
+            <li><a href="./fr/pilotes.html" lang="fr" hreflang="fr"><img src="./assets/flags/fr.png" alt="" width="22" height="15">Français</a></li>
+            <li><a href="./es/pilotes.html" lang="es" hreflang="es"><img src="./assets/flags/es.png" alt="" width="22" height="15">Español</a></li>
+            <li><a href="./it/pilotes.html" lang="it" hreflang="it"><img src="./assets/flags/it.png" alt="" width="22" height="15">Italiano</a></li>
+            <li><a href="./pt/pilotes.html" lang="pt" hreflang="pt"><img src="./assets/flags/pt.png" alt="" width="22" height="15">Português</a></li>
+            <li><a href="./de/pilotes.html" lang="de" hreflang="de"><img src="./assets/flags/de.png" alt="" width="22" height="15">Deutsch</a></li>
+          </ul>
+        </details>
       </div>
     </div>
   </header>
@@ -24,7 +61,7 @@
     <section class="hero" aria-labelledby="driver-title">
       <div>
         <h1 id="driver-title" data-i18n="driversTitle">Windows USB drivers</h1>
-        <p class="intro" data-i18n="driversIntro">In Device Manager, open <strong>Ports (COM & LPT)</strong>. Choose the driver that matches your adapter’s name.</p>
+        <p class="intro" data-i18n="driversIntro">In Device Manager, open <strong>Ports (COM &amp; LPT)</strong>. Choose the driver that matches your adapter’s name.</p>
       </div>
     </section>
     <section class="step-panel" aria-labelledby="cp210x-title">
@@ -63,7 +100,7 @@
     </section>
   </main>
   <footer class="shell footer">
-    <a href="./#wifi" data-i18n="resumeWifi">Resume Wi-Fi setup</a>
+    <a href="./#wifi" data-site-page="dashboard" data-site-hash="#wifi" data-i18n="resumeWifi">Resume Wi-Fi setup</a>
     <a href="https://github.com/drslid/zigate-zigbee2mqtt-home-assistant/blob/main/LISEZ-MOI.md#port-com-de-la-radio-sous-windows" data-i18n="testCom">Test the COM port <span aria-hidden="true" data-i18n-slot="1">↗</span></a>
   </footer>
 </body>
